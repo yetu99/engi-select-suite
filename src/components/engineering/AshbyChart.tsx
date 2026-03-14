@@ -227,7 +227,7 @@ export default function AshbyChart({
               domain={xDomain}
               tickFormatter={formatTick}
               label={{
-                value: xLabel,
+                value: logX ? `${xLabel} [log]` : xLabel,
                 position: 'bottom',
                 offset: 30,
                 style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
