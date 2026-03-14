@@ -397,6 +397,123 @@ export function StepMaterialRanking({ materials, index, shortlistIds, onToggleSh
   );
 }
 
+/* ───────── Geometry Helpers ───────── */
+
+type CrossSection = 'rectangle' | 'circle';
+
+function GeometryHelperI({ onApply }: { onApply: (I: number, y: number) => void }) {
+  const [shape, setShape] = useState<CrossSection>('rectangle');
+  const [b, setB] = useState(40);
+  const [h, setH] = useState(50);
+  const [d, setD] = useState(40);
+
+  const result = useMemo(() => {
+    if (shape === 'rectangle') {
+      const I = (b * Math.pow(h, 3)) / 12;
+      const y = h / 2;
+      return { I, y, formula: `I = b·h³/12 = ${I.toFixed(0)} mm⁴, y = h/2 = ${y.toFixed(1)} mm` };
+    }
+    const I = (Math.PI * Math.pow(d, 4)) / 64;
+    const y = d / 2;
+    return { I, y, formula: `I = π·d⁴/64 = ${I.toFixed(0)} mm⁴, y = d/2 = ${y.toFixed(1)} mm` };
+  }, [shape, b, h, d]);
+
+  return (
+    <div className="bg-accent/30 rounded-lg p-3 border border-border space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">⚙ Querschnitts-Rechner (I)</span>
+      </div>
+      <div className="flex gap-2">
+        {(['rectangle', 'circle'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setShape(s)}
+            className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${shape === s ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}
+          >
+            {s === 'rectangle' ? '▭ Rechteck' : '○ Kreis'}
+          </button>
+        ))}
+      </div>
+      {shape === 'rectangle' ? (
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-[10px] font-mono">Breite b [mm]</Label>
+            <Input type="number" value={b} onChange={(e) => setB(Number(e.target.value))} className="font-mono h-7 text-xs" />
+          </div>
+          <div>
+            <Label className="text-[10px] font-mono">Höhe h [mm]</Label>
+            <Input type="number" value={h} onChange={(e) => setH(Number(e.target.value))} className="font-mono h-7 text-xs" />
+          </div>
+        </div>
+      ) : (
+        <div>
+          <Label className="text-[10px] font-mono">Durchmesser d [mm]</Label>
+          <Input type="number" value={d} onChange={(e) => setD(Number(e.target.value))} className="font-mono h-7 text-xs" />
+        </div>
+      )}
+      <div className="text-[10px] font-mono text-muted-foreground">{result.formula}</div>
+      <Button size="sm" variant="outline" className="h-6 text-[10px] font-mono" onClick={() => onApply(result.I, result.y)}>
+        Übernehmen → I = {result.I.toFixed(0)}, y = {result.y.toFixed(1)}
+      </Button>
+    </div>
+  );
+}
+
+function GeometryHelperJ({ onApply }: { onApply: (J: number, r: number) => void }) {
+  const [dOuter, setDOuter] = useState(40);
+  const [hollow, setHollow] = useState(false);
+  const [dInner, setDInner] = useState(20);
+
+  const result = useMemo(() => {
+    const Do = dOuter;
+    const Di = hollow ? dInner : 0;
+    const J = (Math.PI / 32) * (Math.pow(Do, 4) - Math.pow(Di, 4));
+    const r = Do / 2;
+    const label = hollow
+      ? `J = π/32·(D⁴−d⁴) = ${J.toFixed(0)} mm⁴`
+      : `J = π·d⁴/32 = ${J.toFixed(0)} mm⁴`;
+    return { J, r, formula: `${label}, r = D/2 = ${r.toFixed(1)} mm` };
+  }, [dOuter, dInner, hollow]);
+
+  return (
+    <div className="bg-accent/30 rounded-lg p-3 border border-border space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">⚙ Querschnitts-Rechner (J)</span>
+      </div>
+      <div className="flex gap-2 items-center">
+        <button
+          onClick={() => setHollow(false)}
+          className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${!hollow ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}
+        >
+          ○ Vollkreis
+        </button>
+        <button
+          onClick={() => setHollow(true)}
+          className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${hollow ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}
+        >
+          ◎ Hohlkreis
+        </button>
+      </div>
+      <div className={`grid gap-2 ${hollow ? 'grid-cols-2' : 'grid-cols-1'}`}>
+        <div>
+          <Label className="text-[10px] font-mono">Außen-Ø D [mm]</Label>
+          <Input type="number" value={dOuter} onChange={(e) => setDOuter(Number(e.target.value))} className="font-mono h-7 text-xs" />
+        </div>
+        {hollow && (
+          <div>
+            <Label className="text-[10px] font-mono">Innen-Ø d [mm]</Label>
+            <Input type="number" value={dInner} onChange={(e) => setDInner(Number(e.target.value))} className="font-mono h-7 text-xs" />
+          </div>
+        )}
+      </div>
+      <div className="text-[10px] font-mono text-muted-foreground">{result.formula}</div>
+      <Button size="sm" variant="outline" className="h-6 text-[10px] font-mono" onClick={() => onApply(result.J, result.r)}>
+        Übernehmen → J = {result.J.toFixed(0)}, r = {result.r.toFixed(1)}
+      </Button>
+    </div>
+  );
+}
+
 /* ───────── Step 5: Dimensioning ───────── */
 
 interface Step5Props {
