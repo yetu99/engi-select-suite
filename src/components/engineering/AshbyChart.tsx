@@ -242,7 +242,7 @@ export default function AshbyChart({
               domain={yDomain}
               tickFormatter={formatTick}
               label={{
-                value: yLabel,
+                value: logY ? `${yLabel} [log]` : yLabel,
                 angle: -90,
                 position: 'left',
                 offset: 55,
