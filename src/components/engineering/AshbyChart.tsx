@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
   Customized,
+  Cell,
 } from 'recharts';
 import { Material, MaterialCategory } from '@/types/material';
 import { CATEGORY_FILLS } from './types';
