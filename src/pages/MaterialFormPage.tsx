@@ -103,11 +103,12 @@ export default function MaterialForm() {
 
         <div className="bg-card shadow-card rounded-xl p-5 space-y-4 border border-border/50">
           <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">Mechanische Eigenschaften</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <NumField label="Dichte" unit="kg/m³" value={form.density} onChange={v => set('density', v)} />
             <NumField label="E-Modul" unit="GPa" value={form.youngsModulus} onChange={v => set('youngsModulus', v)} />
             <NumField label="Streckgrenze" unit="MPa" value={form.yieldStrength} onChange={v => set('yieldStrength', v)} />
             <NumField label="Zugfestigkeit" unit="MPa" value={form.tensileStrength} onChange={v => set('tensileStrength', v)} />
+            <NumField label="Bruchzähigkeit K_IC" unit="MPa√m" value={form.fractureToughness} onChange={v => set('fractureToughness', v)} />
           </div>
         </div>
 
