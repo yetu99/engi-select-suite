@@ -99,10 +99,10 @@ export default function AshbyChart({
   guidelineIntercept,
   onInterceptChange,
   highlightIds,
+  shortlistIds,
   onMaterialClick,
 }: AshbyChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   const allData = useMemo<DataPoint[]>(() => {
     return materials
