@@ -157,32 +157,7 @@ export default function AshbyChart({
     return [min - pad, max + pad];
   }, [allData, guidelineSlope, logX, logY]);
 
-  // Drag handlers
-  const handleMouseDown = useCallback(() => {
-    if (guidelineSlope != null && logX && logY) setIsDragging(true);
-  }, [guidelineSlope, logX, logY]);
-
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging || !containerRef.current || guidelineSlope == null) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const chartW = rect.width - CHART_MARGIN.left - CHART_MARGIN.right;
-      const chartH = rect.height - CHART_MARGIN.top - CHART_MARGIN.bottom;
-      const mx = e.clientX - rect.left - CHART_MARGIN.left;
-      const my = e.clientY - rect.top - CHART_MARGIN.top;
-
-      const xFrac = Math.max(0.01, Math.min(0.99, mx / chartW));
-      const yFrac = Math.max(0.01, Math.min(0.99, 1 - my / chartH));
-
-      const logX_ = Math.log10(xDomain[0]) + xFrac * (Math.log10(xDomain[1]) - Math.log10(xDomain[0]));
-      const logY_ = Math.log10(yDomain[0]) + yFrac * (Math.log10(yDomain[1]) - Math.log10(yDomain[0]));
-
-      onInterceptChange(logY_ - guidelineSlope * logX_);
-    },
-    [isDragging, guidelineSlope, xDomain, yDomain, onInterceptChange]
-  );
+  // No drag handlers - use slider only for guideline control
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
