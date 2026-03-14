@@ -408,17 +408,22 @@ interface Step5Props {
 }
 
 export function StepDimensioning({ dimensioning, onChange, materials, index, shortlistIds }: Step5Props) {
-  const nominalStress = dimensioning.area > 0 ? dimensioning.force / dimensioning.area : 0;
+  const nominalStress = computeNominalStress(dimensioning);
+  const isTorsion = dimensioning.loadCase === 'torsion';
 
   const ranked = useMemo(() => {
     const subset = shortlistIds.size > 0
       ? materials.filter((m) => shortlistIds.has(m.id))
       : [...materials].sort((a, b) => index.compute(b) - index.compute(a)).slice(0, 10);
     return subset.map((m) => {
-      const allowable = m.yieldStrength / dimensioning.safetyFactor;
+      // For torsion use shear yield ≈ σ_y / √3 (von Mises)
+      const strength = isTorsion ? m.yieldStrength / Math.sqrt(3) : m.yieldStrength;
+      const allowable = strength / dimensioning.safetyFactor;
       return { material: m, allowable, passes: nominalStress <= allowable };
     });
-  }, [materials, shortlistIds, dimensioning, nominalStress, index]);
+  }, [materials, shortlistIds, dimensioning, nominalStress, index, isTorsion]);
+
+  const stressSymbol = isTorsion ? 'τ' : 'σ';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -426,28 +431,127 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
-            Lastfall
+            Lastfall & Geometrie
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label className="text-xs font-mono">Kraft F [N]</Label>
-            <Input
-              type="number"
-              value={dimensioning.force}
-              onChange={(e) => onChange({ ...dimensioning, force: Number(e.target.value) })}
-              className="font-mono"
-            />
+          {/* Load case selector */}
+          <div className="space-y-2">
+            {(Object.keys(DIMENSIONING_LOAD_LABELS) as DimensioningLoadCase[]).map((lc) => (
+              <label
+                key={lc}
+                className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors text-xs font-mono ${
+                  dimensioning.loadCase === lc
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/40'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="dimLoadCase"
+                  value={lc}
+                  checked={dimensioning.loadCase === lc}
+                  onChange={() => onChange({ ...dimensioning, loadCase: lc })}
+                  className="accent-primary"
+                />
+                {DIMENSIONING_LOAD_LABELS[lc]}
+              </label>
+            ))}
           </div>
-          <div>
-            <Label className="text-xs font-mono">Querschnittsfläche A [mm²]</Label>
-            <Input
-              type="number"
-              value={dimensioning.area}
-              onChange={(e) => onChange({ ...dimensioning, area: Number(e.target.value) })}
-              className="font-mono"
-            />
+
+          <div className="border-t border-border pt-4 space-y-3">
+            {/* Tension inputs */}
+            {dimensioning.loadCase === 'tension' && (
+              <>
+                <div>
+                  <Label className="text-xs font-mono">Kraft F [N]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.force}
+                    onChange={(e) => onChange({ ...dimensioning, force: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-mono">Querschnittsfläche A [mm²]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.area}
+                    onChange={(e) => onChange({ ...dimensioning, area: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Bending inputs */}
+            {dimensioning.loadCase === 'bending' && (
+              <>
+                <div>
+                  <Label className="text-xs font-mono">Biegemoment M [N·mm]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.bendingMoment}
+                    onChange={(e) => onChange({ ...dimensioning, bendingMoment: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-mono">Randabstand y [mm]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.distanceY}
+                    onChange={(e) => onChange({ ...dimensioning, distanceY: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-mono">Flächenträgheitsmoment I [mm⁴]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.momentOfInertia}
+                    onChange={(e) => onChange({ ...dimensioning, momentOfInertia: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Torsion inputs */}
+            {dimensioning.loadCase === 'torsion' && (
+              <>
+                <div>
+                  <Label className="text-xs font-mono">Torsionsmoment T [N·mm]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.torque}
+                    onChange={(e) => onChange({ ...dimensioning, torque: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-mono">Radius r [mm]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.radiusR}
+                    onChange={(e) => onChange({ ...dimensioning, radiusR: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-mono">Polares Trägheitsmoment J [mm⁴]</Label>
+                  <Input
+                    type="number"
+                    value={dimensioning.polarMomentJ}
+                    onChange={(e) => onChange({ ...dimensioning, polarMomentJ: Number(e.target.value) })}
+                    className="font-mono"
+                  />
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Safety factor (always visible) */}
           <div>
             <Label className="text-xs font-mono">Sicherheitsfaktor S</Label>
             <Input
@@ -458,8 +562,14 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
               className="font-mono"
             />
           </div>
+
+          {/* Computed stress */}
           <div className="bg-muted/50 rounded-lg p-4 border border-border">
-            <div className="text-xs font-mono text-muted-foreground mb-1">Nennspannung σ = F / A</div>
+            <div className="text-xs font-mono text-muted-foreground mb-1">
+              {dimensioning.loadCase === 'tension' && 'Nennspannung σ = F / A'}
+              {dimensioning.loadCase === 'bending' && 'Biegespannung σ = M·y / I'}
+              {dimensioning.loadCase === 'torsion' && 'Schubspannung τ = T·r / J'}
+            </div>
             <div className="text-2xl font-mono font-bold text-primary">
               {nominalStress.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">MPa</span>
             </div>
@@ -471,7 +581,7 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
       <Card className="lg:col-span-2">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
-            Festigkeitsnachweis
+            Festigkeitsnachweis {isTorsion ? '(Schub)' : '(Normal)'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -479,9 +589,9 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
             <TableHeader>
               <TableRow className="bg-muted/30">
                 <TableHead className="font-mono text-xs">Werkstoff</TableHead>
-                <TableHead className="font-mono text-xs">σ_y [MPa]</TableHead>
-                <TableHead className="font-mono text-xs">σ_zul [MPa]</TableHead>
-                <TableHead className="font-mono text-xs">σ_nom [MPa]</TableHead>
+                <TableHead className="font-mono text-xs">{isTorsion ? 'τ_y [MPa]' : 'σ_y [MPa]'}</TableHead>
+                <TableHead className="font-mono text-xs">{stressSymbol}_zul [MPa]</TableHead>
+                <TableHead className="font-mono text-xs">{stressSymbol}_nom [MPa]</TableHead>
                 <TableHead className="font-mono text-xs">Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -492,7 +602,11 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
                   className={r.passes ? 'bg-green-500/5' : 'bg-red-500/5'}
                 >
                   <TableCell className="text-sm font-medium">{r.material.name}</TableCell>
-                  <TableCell className="font-mono text-xs">{r.material.yieldStrength}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {isTorsion
+                      ? (r.material.yieldStrength / Math.sqrt(3)).toFixed(0)
+                      : r.material.yieldStrength}
+                  </TableCell>
                   <TableCell className="font-mono text-xs">{r.allowable.toFixed(1)}</TableCell>
                   <TableCell className="font-mono text-xs">{nominalStress.toFixed(1)}</TableCell>
                   <TableCell>

@@ -48,7 +48,7 @@ export default function EngineeringSelectionPage() {
     [materials, problem]
   );
 
-  const nominalStress = dimensioning.area > 0 ? dimensioning.force / dimensioning.area : 0;
+  const nominalStress = computeNominalStress(dimensioning);
 
   // Materials above guideline (for highlighting)
   const passingGuidelineIds = useMemo(() => {
