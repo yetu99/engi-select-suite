@@ -325,8 +325,8 @@ export default function AshbyChart({
             step={0.01}
             className="flex-1"
           />
-          <span className="text-xs font-mono text-muted-foreground w-16 text-right">
-            M ≥ {Math.pow(10, guidelineIntercept).toFixed(1)}
+          <span className="text-xs font-mono text-muted-foreground w-32 text-right">
+            M ≥ {Math.pow(10, guidelineIntercept).toExponential(2)}
           </span>
         </div>
       )}
