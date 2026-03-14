@@ -280,33 +280,35 @@ export default function AshbyChart({
               height={30}
               wrapperStyle={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
             />
-            {categories.map((cat) => (
-              <Scatter
-                key={cat}
-                name={cat}
-                data={allData.filter((d) => d.category === cat)}
-                fill={CATEGORY_FILLS[cat] || '#888'}
-                fillOpacity={0.8}
-                onClick={(data: any) => onMaterialClick?.(data?.id)}
-                cursor="pointer"
-              >
-                {allData
-                  .filter((d) => d.category === cat)
-                  .map((d) => {
+            {categories.map((cat) => {
+              const catData = allData.filter((d) => d.category === cat);
+              return (
+                <Scatter
+                  key={cat}
+                  name={cat}
+                  data={catData}
+                  fill={CATEGORY_FILLS[cat] || '#888'}
+                  fillOpacity={0.8}
+                  onClick={(data: any) => onMaterialClick?.(data?.id)}
+                  cursor="pointer"
+                  isAnimationActive={false}
+                >
+                  {catData.map((d) => {
                     const isHighlighted = highlightIds?.has(d.id);
                     return (
-                      <circle
+                      <Cell
                         key={d.id}
-                        r={isHighlighted ? 8 : 5}
                         fill={CATEGORY_FILLS[cat]}
                         fillOpacity={isHighlighted ? 1 : 0.7}
                         stroke={isHighlighted ? 'hsl(var(--foreground))' : 'none'}
                         strokeWidth={isHighlighted ? 2 : 0}
+                        r={isHighlighted ? 8 : 5}
                       />
                     );
                   })}
-              </Scatter>
-            ))}
+                </Scatter>
+              );
+            })}
             {guidelineSlope != null && logX && logY && (
               <Customized
                 component={
