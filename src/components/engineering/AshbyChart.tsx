@@ -185,16 +185,21 @@ export default function AshbyChart({
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.[0]?.payload) return null;
     const d = payload[0].payload as DataPoint;
+    const mat = materials.find((m) => m.id === d.id);
     return (
-      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono">
-        <div className="font-bold text-foreground text-sm">{d.name}</div>
-        <div className="text-muted-foreground mb-1">{d.category}</div>
-        <div>
-          {xLabel.split('[')[0].trim()}: <span className="text-foreground">{d.x.toLocaleString('de-DE')}</span>
-        </div>
-        <div>
-          {yLabel.split('[')[0].trim()}: <span className="text-foreground">{d.y.toLocaleString('de-DE')}</span>
-        </div>
+      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono min-w-[180px]">
+        <div className="font-bold text-foreground text-sm mb-1">{d.name}</div>
+        <div className="text-muted-foreground mb-2">{d.category}</div>
+        {mat && (
+          <div className="space-y-0.5 text-muted-foreground">
+            <div>ρ: <span className="text-foreground">{mat.density.toLocaleString('de-DE')} kg/m³</span></div>
+            <div>E: <span className="text-foreground">{mat.youngsModulus} GPa</span></div>
+            <div>σ_y: <span className="text-foreground">{mat.yieldStrength} MPa</span></div>
+            <div>R_m: <span className="text-foreground">{mat.tensileStrength} MPa</span></div>
+            <div>T_max: <span className="text-foreground">{mat.maxServiceTemp} °C</span></div>
+            <div>Kosten: <span className="text-foreground">{mat.relativeCost}/10</span></div>
+          </div>
+        )}
       </div>
     );
   };
