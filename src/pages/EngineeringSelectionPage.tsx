@@ -9,6 +9,7 @@ import {
   defaultDimensioning,
   getMaterialIndex,
   applyConstraints,
+  computeNominalStress,
 } from '@/components/engineering/types';
 import {
   StepProblemDefinition,
@@ -47,7 +48,7 @@ export default function EngineeringSelectionPage() {
     [materials, problem]
   );
 
-  const nominalStress = dimensioning.area > 0 ? dimensioning.force / dimensioning.area : 0;
+  const nominalStress = computeNominalStress(dimensioning);
 
   // Materials above guideline (for highlighting)
   const passingGuidelineIds = useMemo(() => {
@@ -152,6 +153,7 @@ export default function EngineeringSelectionPage() {
             shortlistIds={shortlistIds}
             nominalStress={nominalStress}
             safetyFactor={dimensioning.safetyFactor}
+            isTorsion={dimensioning.loadCase === 'torsion'}
           />
         )}
       </div>
