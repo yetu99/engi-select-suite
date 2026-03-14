@@ -284,10 +284,16 @@ export function StepAshbyCharts({
   const chart = ashbyCharts.find((c) => c.id === selectedChart) || ashbyCharts[0];
   const isLogLog = chart.logX && chart.logY;
 
+  // Use material-index slope for E-vs-rho and sigma-vs-rho, chart's own slope for others
+  const effectiveSlope = (chart.id === 'e-vs-rho' || chart.id === 'sigma-vs-rho')
+    ? guidelineSlope
+    : chart.guidelineSlope;
+  const showGuideline = isLogLog && effectiveSlope != null;
+
   return (
     <div className="space-y-4">
       <Tabs value={selectedChart} onValueChange={onSelectChart}>
-        <TabsList className="bg-muted/50 border border-border">
+        <TabsList className="bg-muted/50 border border-border flex-wrap h-auto gap-1 p-1">
           {ashbyCharts.map((c) => (
             <TabsTrigger key={c.id} value={c.id} className="text-xs font-mono">
               {c.title}
@@ -304,14 +310,14 @@ export function StepAshbyCharts({
         yLabel={chart.yLabel}
         logX={chart.logX}
         logY={chart.logY}
-        guidelineSlope={isLogLog ? guidelineSlope : null}
+        guidelineSlope={showGuideline ? effectiveSlope! : null}
         guidelineIntercept={guidelineIntercept}
         onInterceptChange={onInterceptChange}
         highlightIds={highlightIds}
         onMaterialClick={onMaterialClick}
       />
 
-      {isLogLog && (
+      {showGuideline && (
         <p className="text-xs text-muted-foreground font-mono">
           Leitlinie auf dem Diagramm ziehen oder Slider verwenden. Werkstoffe oberhalb der Linie erfüllen den Materialindex.
         </p>
