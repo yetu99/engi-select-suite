@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, BarChart3, Star, PlusCircle, Lightbulb, GitCompareArrows } from 'lucide-react';
+import { Search, BarChart3, Star, PlusCircle, Lightbulb, GitCompareArrows, FlaskConical } from 'lucide-react';
 import { useMaterials } from '@/context/MaterialContext';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/favoriten', label: 'Favoriten', icon: Star },
   { to: '/vergleich', label: 'Vergleich', icon: GitCompareArrows },
   { to: '/empfehlung', label: 'Empfehlung', icon: Lightbulb },
+  { to: '/engineering', label: 'Engineering', icon: FlaskConical },
   { to: '/hinzufuegen', label: 'Hinzufügen', icon: PlusCircle },
 ];
 

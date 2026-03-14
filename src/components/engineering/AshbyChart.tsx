@@ -1,0 +1,314 @@
+import React, { useState, useCallback, useRef, useMemo } from 'react';
+import {
+  ComposedChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Customized,
+} from 'recharts';
+import { Material, MaterialCategory } from '@/types/material';
+import { CATEGORY_FILLS } from './types';
+import { Slider } from '@/components/ui/slider';
+
+interface DataPoint {
+  x: number;
+  y: number;
+  id: string;
+  name: string;
+  category: MaterialCategory;
+}
+
+interface AshbyChartProps {
+  materials: Material[];
+  xKey: string;
+  yKey: string;
+  xLabel: string;
+  yLabel: string;
+  logX?: boolean;
+  logY?: boolean;
+  guidelineSlope?: number | null;
+  guidelineIntercept: number;
+  onInterceptChange: (v: number) => void;
+  highlightIds?: Set<string>;
+  onMaterialClick?: (id: string) => void;
+}
+
+const CHART_MARGIN = { top: 20, right: 40, bottom: 50, left: 80 };
+
+function GuidelineRenderer({ xAxisMap, yAxisMap, slope, intercept }: any) {
+  if (slope == null) return null;
+  const xAxis = xAxisMap && Object.values(xAxisMap)[0] as any;
+  const yAxis = yAxisMap && Object.values(yAxisMap)[0] as any;
+  if (!xAxis?.scale || !yAxis?.scale) return null;
+
+  const xScale = xAxis.scale;
+  const yScale = yAxis.scale;
+  const [xMin, xMax] = xScale.domain();
+  const [yDomMin, yDomMax] = yScale.domain();
+
+  if (xMin <= 0 || xMax <= 0) return null;
+
+  const y1Raw = Math.pow(10, slope * Math.log10(xMin) + intercept);
+  const y2Raw = Math.pow(10, slope * Math.log10(xMax) + intercept);
+  const y1 = Math.max(yDomMin, Math.min(yDomMax, y1Raw));
+  const y2 = Math.max(yDomMin, Math.min(yDomMax, y2Raw));
+
+  const px1 = xScale(y1 === y1Raw ? xMin : Math.pow(10, (Math.log10(y1) - intercept) / slope));
+  const py1 = yScale(y1);
+  const px2 = xScale(y2 === y2Raw ? xMax : Math.pow(10, (Math.log10(y2) - intercept) / slope));
+  const py2 = yScale(y2);
+
+  return (
+    <g>
+      <line
+        x1={px1} y1={py1} x2={px2} y2={py2}
+        stroke="hsl(0, 70%, 50%)"
+        strokeWidth={2.5}
+        strokeDasharray="10 6"
+        style={{ pointerEvents: 'none' }}
+      />
+      <text
+        x={px2 - 8} y={py2 - 10}
+        fill="hsl(0, 70%, 50%)"
+        fontSize={11}
+        textAnchor="end"
+        fontFamily="'JetBrains Mono', monospace"
+        fontWeight={600}
+      >
+        M = const
+      </text>
+    </g>
+  );
+}
+
+export default function AshbyChart({
+  materials,
+  xKey,
+  yKey,
+  xLabel,
+  yLabel,
+  logX = true,
+  logY = true,
+  guidelineSlope = null,
+  guidelineIntercept,
+  onInterceptChange,
+  highlightIds,
+  onMaterialClick,
+}: AshbyChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const allData = useMemo<DataPoint[]>(() => {
+    return materials
+      .map((m) => ({
+        x: (m as any)[xKey] as number,
+        y: (m as any)[yKey] as number,
+        id: m.id,
+        name: m.name,
+        category: m.category,
+      }))
+      .filter((d) => (logX ? d.x > 0 : true) && (logY ? d.y > 0 : true));
+  }, [materials, xKey, yKey, logX, logY]);
+
+  const categories = useMemo(() => Array.from(new Set(allData.map((d) => d.category))), [allData]);
+
+  const xDomain = useMemo<[number, number]>(() => {
+    const vals = allData.map((d) => d.x);
+    if (vals.length === 0) return [1, 10];
+    if (logX) {
+      const logMin = Math.floor(Math.log10(Math.min(...vals)));
+      const logMax = Math.ceil(Math.log10(Math.max(...vals)));
+      return [Math.pow(10, logMin), Math.pow(10, logMax)];
+    }
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const pad = (max - min) * 0.1 || 1;
+    return [min - pad, max + pad];
+  }, [allData, logX]);
+
+  const yDomain = useMemo<[number, number]>(() => {
+    const vals = allData.map((d) => d.y);
+    if (vals.length === 0) return [1, 10];
+    if (logY) {
+      const logMin = Math.floor(Math.log10(Math.min(...vals)));
+      const logMax = Math.ceil(Math.log10(Math.max(...vals)));
+      return [Math.pow(10, logMin), Math.pow(10, logMax)];
+    }
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const pad = (max - min) * 0.1 || 1;
+    return [min - pad, max + pad];
+  }, [allData, logY]);
+
+  // Guideline intercept range for slider
+  const interceptRange = useMemo<[number, number]>(() => {
+    if (guidelineSlope == null || !logX || !logY) return [0, 0];
+    const values = allData.map((d) => Math.log10(d.y) - guidelineSlope * Math.log10(d.x));
+    if (values.length === 0) return [-2, 2];
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = (max - min) * 0.4;
+    return [min - pad, max + pad];
+  }, [allData, guidelineSlope, logX, logY]);
+
+  // Drag handlers
+  const handleMouseDown = useCallback(() => {
+    if (guidelineSlope != null && logX && logY) setIsDragging(true);
+  }, [guidelineSlope, logX, logY]);
+
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || !containerRef.current || guidelineSlope == null) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const chartW = rect.width - CHART_MARGIN.left - CHART_MARGIN.right;
+      const chartH = rect.height - CHART_MARGIN.top - CHART_MARGIN.bottom;
+      const mx = e.clientX - rect.left - CHART_MARGIN.left;
+      const my = e.clientY - rect.top - CHART_MARGIN.top;
+
+      const xFrac = Math.max(0.01, Math.min(0.99, mx / chartW));
+      const yFrac = Math.max(0.01, Math.min(0.99, 1 - my / chartH));
+
+      const logX_ = Math.log10(xDomain[0]) + xFrac * (Math.log10(xDomain[1]) - Math.log10(xDomain[0]));
+      const logY_ = Math.log10(yDomain[0]) + yFrac * (Math.log10(yDomain[1]) - Math.log10(yDomain[0]));
+
+      onInterceptChange(logY_ - guidelineSlope * logX_);
+    },
+    [isDragging, guidelineSlope, xDomain, yDomain, onInterceptChange]
+  );
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.[0]?.payload) return null;
+    const d = payload[0].payload as DataPoint;
+    return (
+      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono">
+        <div className="font-bold text-foreground text-sm">{d.name}</div>
+        <div className="text-muted-foreground mb-1">{d.category}</div>
+        <div>
+          {xLabel.split('[')[0].trim()}: <span className="text-foreground">{d.x.toLocaleString('de-DE')}</span>
+        </div>
+        <div>
+          {yLabel.split('[')[0].trim()}: <span className="text-foreground">{d.y.toLocaleString('de-DE')}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const formatTick = (v: number) => {
+    if (Math.abs(v) >= 10000) return `${(v / 1000).toFixed(0)}k`;
+    if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
+    if (v < 0.01 && v > 0) return v.toExponential(0);
+    return String(Math.round(v * 100) / 100);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div
+        ref={containerRef}
+        className="select-none rounded-lg border border-border bg-card"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ cursor: isDragging ? 'ns-resize' : guidelineSlope != null ? 'crosshair' : 'default' }}
+      >
+        <ResponsiveContainer width="100%" height={480}>
+          <ComposedChart margin={CHART_MARGIN}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+            <XAxis
+              dataKey="x"
+              type="number"
+              scale={logX ? 'log' : 'linear'}
+              domain={xDomain}
+              tickFormatter={formatTick}
+              label={{
+                value: xLabel,
+                position: 'bottom',
+                offset: 30,
+                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
+              }}
+              tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
+              allowDuplicatedCategory={false}
+            />
+            <YAxis
+              dataKey="y"
+              type="number"
+              scale={logY ? 'log' : 'linear'}
+              domain={yDomain}
+              tickFormatter={formatTick}
+              label={{
+                value: yLabel,
+                angle: -90,
+                position: 'left',
+                offset: 55,
+                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
+              }}
+              tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              verticalAlign="top"
+              height={30}
+              wrapperStyle={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
+            />
+            {categories.map((cat) => (
+              <Scatter
+                key={cat}
+                name={cat}
+                data={allData.filter((d) => d.category === cat)}
+                fill={CATEGORY_FILLS[cat] || '#888'}
+                fillOpacity={0.8}
+                onClick={(data: any) => onMaterialClick?.(data?.id)}
+                cursor="pointer"
+              >
+                {allData
+                  .filter((d) => d.category === cat)
+                  .map((d) => {
+                    const isHighlighted = highlightIds?.has(d.id);
+                    return (
+                      <circle
+                        key={d.id}
+                        r={isHighlighted ? 8 : 5}
+                        fill={CATEGORY_FILLS[cat]}
+                        fillOpacity={isHighlighted ? 1 : 0.7}
+                        stroke={isHighlighted ? 'hsl(var(--foreground))' : 'none'}
+                        strokeWidth={isHighlighted ? 2 : 0}
+                      />
+                    );
+                  })}
+              </Scatter>
+            ))}
+            {guidelineSlope != null && logX && logY && (
+              <Customized
+                component={
+                  <GuidelineRenderer slope={guidelineSlope} intercept={guidelineIntercept} />
+                }
+              />
+            )}
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      {guidelineSlope != null && logX && logY && (
+        <div className="flex items-center gap-4 px-4">
+          <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">Leitlinie verschieben:</span>
+          <Slider
+            value={[guidelineIntercept]}
+            onValueChange={([v]) => onInterceptChange(v)}
+            min={interceptRange[0]}
+            max={interceptRange[1]}
+            step={0.01}
+            className="flex-1"
+          />
+          <span className="text-xs font-mono text-muted-foreground w-16 text-right">
+            M ≥ {Math.pow(10, guidelineIntercept).toFixed(1)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
