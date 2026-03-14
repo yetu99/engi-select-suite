@@ -13,17 +13,17 @@ export default function DashboardPage() {
     <div className="flex">
       <FilterSidebar />
       <div className="flex-1 min-w-0">
-        <div className="sticky top-12 z-20 bg-background p-3 flex items-center gap-3 shadow-header">
+        <div className="sticky top-14 z-20 bg-background/80 backdrop-blur-md p-4 flex items-center gap-3 border-b border-border/50">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={filters.search}
               onChange={e => updateFilter('search', e.target.value)}
               placeholder="Werkstoff suchen…"
-              className="pl-9"
+              className="pl-9 rounded-lg"
             />
           </div>
-          <span className="text-label text-muted-foreground">
+          <span className="text-[13px] text-muted-foreground">
             {filteredMaterials.length} von {materials.length} Werkstoffen
           </span>
           <div className="flex gap-1 ml-auto">
@@ -31,7 +31,7 @@ export default function DashboardPage() {
               variant={viewMode === 'table' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('table')}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 rounded-lg"
             >
               <LayoutList className="w-4 h-4" />
             </Button>
@@ -39,7 +39,7 @@ export default function DashboardPage() {
               variant={viewMode === 'card' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('card')}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 rounded-lg"
             >
               <LayoutGrid className="w-4 h-4" />
             </Button>

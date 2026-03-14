@@ -14,13 +14,13 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["IBM Plex Sans", "system-ui", "sans-serif"],
-        mono: ["IBM Plex Mono", "monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       fontSize: {
-        "label": ["12px", { lineHeight: "16px" }],
-        "body": ["14px", { lineHeight: "20px" }],
-        "subheading": ["18px", { lineHeight: "24px" }],
+        "label": ["0.75rem", { lineHeight: "1rem" }],
+        "body": ["0.875rem", { lineHeight: "1.25rem" }],
+        "subheading": ["1.125rem", { lineHeight: "1.5rem" }],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -16,11 +16,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-card shadow-header">
-        <div className="flex items-center h-12 px-4 max-w-[1600px] mx-auto">
-          <Link to="/" className="flex items-center gap-2 mr-8">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-body tracking-tight">Material Select</span>
+      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
+        <div className="flex items-center h-14 px-6 max-w-[1600px] mx-auto">
+          <Link to="/" className="flex items-center gap-2.5 mr-10">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <BarChart3 className="w-4.5 h-4.5 text-primary-foreground" />
+            </div>
+            <span className="font-semibold text-[15px] tracking-tight">Material Select</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map(({ to, label, icon: Icon }) => {
@@ -29,16 +31,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={to}
                   to={to}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-label transition-colors duration-150 ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-4 h-4" />
                   <span>{label}</span>
                   {to === '/vergleich' && compareIds.length > 0 && (
-                    <span className="ml-1 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-semibold">
+                    <span className="ml-0.5 bg-primary-foreground/20 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">
                       {compareIds.length}
                     </span>
                   )}

@@ -1,5 +1,5 @@
 import { useMaterials } from '@/context/MaterialContext';
-import { Material, SortField } from '@/types/material';
+import { SortField } from '@/types/material';
 import { Link } from 'react-router-dom';
 import { Star, GitCompareArrows, ChevronUp, ChevronDown } from 'lucide-react';
 
@@ -22,13 +22,13 @@ export default function MaterialTable() {
     <div className="overflow-x-auto">
       <table className="w-full text-body">
         <thead>
-          <tr className="bg-muted shadow-header sticky top-0 z-10">
-            <th className="w-8 p-2" />
-            <th className="w-8 p-2" />
+          <tr className="bg-accent/50 border-b border-border">
+            <th className="w-10 p-2.5" />
+            <th className="w-10 p-2.5" />
             {columns.map(col => (
               <th
                 key={col.key}
-                className="p-2 text-left text-label font-semibold text-foreground cursor-pointer select-none hover:bg-accent whitespace-nowrap"
+                className="p-2.5 text-left text-label font-semibold text-foreground cursor-pointer select-none hover:bg-accent rounded-lg whitespace-nowrap transition-colors"
                 onClick={() => setSort(col.key)}
               >
                 <span className="flex items-center gap-1">
@@ -44,32 +44,32 @@ export default function MaterialTable() {
         </thead>
         <tbody>
           {filteredMaterials.map(m => (
-            <tr key={m.id} className="hover:bg-muted/50 transition-colors duration-150 border-b border-border/50">
-              <td className="p-2">
-                <button onClick={() => toggleFavorite(m.id)} className="text-muted-foreground hover:text-warning">
+            <tr key={m.id} className="hover:bg-accent/30 transition-colors duration-150 border-b border-border/40">
+              <td className="p-2.5">
+                <button onClick={() => toggleFavorite(m.id)} className="p-1 rounded-md text-muted-foreground hover:text-warning hover:bg-accent transition-colors">
                   <Star className={`w-3.5 h-3.5 ${m.isFavorite ? 'fill-warning text-warning' : ''}`} />
                 </button>
               </td>
-              <td className="p-2">
-                <button onClick={() => toggleCompare(m.id)} className={`text-muted-foreground hover:text-primary ${compareIds.includes(m.id) ? 'text-primary' : ''}`}>
+              <td className="p-2.5">
+                <button onClick={() => toggleCompare(m.id)} className={`p-1 rounded-md transition-colors ${compareIds.includes(m.id) ? 'text-primary bg-accent' : 'text-muted-foreground hover:text-primary hover:bg-accent'}`}>
                   <GitCompareArrows className="w-3.5 h-3.5" />
                 </button>
               </td>
-              <td className="p-2">
+              <td className="p-2.5">
                 <Link to={`/werkstoff/${m.id}`} className="text-primary hover:underline font-medium">{m.name}</Link>
                 <div className="text-label text-muted-foreground">{m.category} · {m.subcategory}</div>
               </td>
-              <td className="p-2 font-mono-data">{m.density.toLocaleString('de-DE')}</td>
-              <td className="p-2 font-mono-data">{m.youngsModulus}</td>
-              <td className="p-2 font-mono-data">{m.yieldStrength}</td>
-              <td className="p-2 font-mono-data">{m.tensileStrength}</td>
-              <td className="p-2 font-mono-data text-primary font-medium">{m.specificStiffness.toFixed(1)}</td>
-              <td className="p-2 font-mono-data text-primary font-medium">{m.specificStrength.toFixed(1)}</td>
-              <td className="p-2 font-mono-data">{m.maxServiceTemp}</td>
-              <td className="p-2">
-                <div className="flex items-center gap-1">
+              <td className="p-2.5 font-mono-data">{m.density.toLocaleString('de-DE')}</td>
+              <td className="p-2.5 font-mono-data">{m.youngsModulus}</td>
+              <td className="p-2.5 font-mono-data">{m.yieldStrength}</td>
+              <td className="p-2.5 font-mono-data">{m.tensileStrength}</td>
+              <td className="p-2.5 font-mono-data text-primary font-medium">{m.specificStiffness.toFixed(1)}</td>
+              <td className="p-2.5 font-mono-data text-primary font-medium">{m.specificStrength.toFixed(1)}</td>
+              <td className="p-2.5 font-mono-data">{m.maxServiceTemp}</td>
+              <td className="p-2.5">
+                <div className="flex items-center gap-0.5">
                   {Array.from({ length: 10 }, (_, i) => (
-                    <div key={i} className={`w-1.5 h-3 rounded-sm ${i < m.relativeCost ? 'bg-primary' : 'bg-muted'}`} />
+                    <div key={i} className={`w-1.5 h-3.5 rounded-full ${i < m.relativeCost ? 'bg-primary' : 'bg-accent'}`} />
                   ))}
                 </div>
               </td>
@@ -77,7 +77,7 @@ export default function MaterialTable() {
           ))}
           {filteredMaterials.length === 0 && (
             <tr>
-              <td colSpan={11} className="p-8 text-center text-muted-foreground">Keine Werkstoffe gefunden. Filter anpassen.</td>
+              <td colSpan={11} className="p-12 text-center text-muted-foreground">Keine Werkstoffe gefunden. Filter anpassen.</td>
             </tr>
           )}
         </tbody>
