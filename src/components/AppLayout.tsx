@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, BarChart3, Star, PlusCircle, Lightbulb, GitCompareArrows } from 'lucide-react';
+import { Search, BarChart3, Star, PlusCircle, Lightbulb, GitCompareArrows, FlaskConical } from 'lucide-react';
 import { useMaterials } from '@/context/MaterialContext';
 
 const navItems = [
