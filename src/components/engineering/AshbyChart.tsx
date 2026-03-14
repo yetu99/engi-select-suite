@@ -205,10 +205,24 @@ export default function AshbyChart({
   };
 
   const formatTick = (v: number) => {
+    if (v === 0) return '0';
+    if (Math.abs(v) >= 1e6) return `${(v / 1e6).toFixed(0)}M`;
     if (Math.abs(v) >= 10000) return `${(v / 1000).toFixed(0)}k`;
     if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
-    if (v < 0.01 && v > 0) return v.toExponential(0);
+    if (v < 0.01 && v > 0) return v.toExponential(1);
+    if (v < 1 && v > 0) return v.toPrecision(2);
     return String(Math.round(v * 100) / 100);
+  };
+
+  // Generate clean log ticks
+  const logTicks = (domain: [number, number]) => {
+    const minExp = Math.floor(Math.log10(domain[0]));
+    const maxExp = Math.ceil(Math.log10(domain[1]));
+    const ticks: number[] = [];
+    for (let e = minExp; e <= maxExp; e++) {
+      ticks.push(Math.pow(10, e));
+    }
+    return ticks;
   };
 
   return (
