@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
   Customized,
+  Cell,
 } from 'recharts';
 import { Material, MaterialCategory } from '@/types/material';
 import { CATEGORY_FILLS } from './types';
@@ -183,11 +184,12 @@ export default function AshbyChart({
   );
 
   const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.[0]?.payload) return null;
-    const d = payload[0].payload as DataPoint;
+    if (!active || !payload?.length) return null;
+    const d = payload[0]?.payload as DataPoint;
+    if (!d) return null;
     const mat = materials.find((m) => m.id === d.id);
     return (
-      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono min-w-[180px]">
+      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono min-w-[180px] pointer-events-none z-[100]">
         <div className="font-bold text-foreground text-sm mb-1">{d.name}</div>
         <div className="text-muted-foreground mb-2">{d.category}</div>
         {mat && (
@@ -196,6 +198,7 @@ export default function AshbyChart({
             <div>E: <span className="text-foreground">{mat.youngsModulus} GPa</span></div>
             <div>σ_y: <span className="text-foreground">{mat.yieldStrength} MPa</span></div>
             <div>R_m: <span className="text-foreground">{mat.tensileStrength} MPa</span></div>
+            <div>K_IC: <span className="text-foreground">{mat.fractureToughness} MPa√m</span></div>
             <div>T_max: <span className="text-foreground">{mat.maxServiceTemp} °C</span></div>
             <div>Kosten: <span className="text-foreground">{mat.relativeCost}/10</span></div>
           </div>
@@ -277,33 +280,35 @@ export default function AshbyChart({
               height={30}
               wrapperStyle={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
             />
-            {categories.map((cat) => (
-              <Scatter
-                key={cat}
-                name={cat}
-                data={allData.filter((d) => d.category === cat)}
-                fill={CATEGORY_FILLS[cat] || '#888'}
-                fillOpacity={0.8}
-                onClick={(data: any) => onMaterialClick?.(data?.id)}
-                cursor="pointer"
-              >
-                {allData
-                  .filter((d) => d.category === cat)
-                  .map((d) => {
+            {categories.map((cat) => {
+              const catData = allData.filter((d) => d.category === cat);
+              return (
+                <Scatter
+                  key={cat}
+                  name={cat}
+                  data={catData}
+                  fill={CATEGORY_FILLS[cat] || '#888'}
+                  fillOpacity={0.8}
+                  onClick={(data: any) => onMaterialClick?.(data?.id)}
+                  cursor="pointer"
+                  isAnimationActive={false}
+                >
+                  {catData.map((d) => {
                     const isHighlighted = highlightIds?.has(d.id);
                     return (
-                      <circle
+                      <Cell
                         key={d.id}
-                        r={isHighlighted ? 8 : 5}
                         fill={CATEGORY_FILLS[cat]}
                         fillOpacity={isHighlighted ? 1 : 0.7}
                         stroke={isHighlighted ? 'hsl(var(--foreground))' : 'none'}
                         strokeWidth={isHighlighted ? 2 : 0}
+                        r={isHighlighted ? 8 : 5}
                       />
                     );
                   })}
-              </Scatter>
-            ))}
+                </Scatter>
+              );
+            })}
             {guidelineSlope != null && logX && logY && (
               <Customized
                 component={

@@ -39,6 +39,7 @@ export interface Material {
   limitations: string;
   selectionNotes: string;
   lectureNotes: string;
+  fractureToughness: number; // K_IC in MPa√m
   source: string;
   isFavorite: boolean;
   // Computed

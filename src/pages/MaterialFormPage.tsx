@@ -19,7 +19,7 @@ const emptyForm: FormData = {
   name: '', category: 'Metall', subcategory: '', shortDescription: '',
   density: 0, youngsModulus: 0, yieldStrength: 0, tensileStrength: 0,
   maxServiceTemp: 0, thermalConductivity: 0, corrosionResistance: 'Mittel',
-  manufacturingMethods: [], relativeCost: 5, recyclable: false,
+  manufacturingMethods: [], relativeCost: 5, recyclable: false, fractureToughness: 0,
   typicalApplications: '', advantages: '', limitations: '', selectionNotes: '', source: '',
 };
 
@@ -47,7 +47,8 @@ export default function MaterialForm() {
     yieldStrength: existing.yieldStrength, tensileStrength: existing.tensileStrength, maxServiceTemp: existing.maxServiceTemp,
     thermalConductivity: existing.thermalConductivity, corrosionResistance: existing.corrosionResistance,
     manufacturingMethods: existing.manufacturingMethods, relativeCost: existing.relativeCost, recyclable: existing.recyclable,
-    typicalApplications: existing.typicalApplications, advantages: existing.advantages, limitations: existing.limitations,
+    fractureToughness: existing.fractureToughness, typicalApplications: existing.typicalApplications,
+    advantages: existing.advantages, limitations: existing.limitations,
     selectionNotes: existing.selectionNotes, source: existing.source,
   } : emptyForm);
 
@@ -102,11 +103,12 @@ export default function MaterialForm() {
 
         <div className="bg-card shadow-card rounded-xl p-5 space-y-4 border border-border/50">
           <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">Mechanische Eigenschaften</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <NumField label="Dichte" unit="kg/m³" value={form.density} onChange={v => set('density', v)} />
             <NumField label="E-Modul" unit="GPa" value={form.youngsModulus} onChange={v => set('youngsModulus', v)} />
             <NumField label="Streckgrenze" unit="MPa" value={form.yieldStrength} onChange={v => set('yieldStrength', v)} />
             <NumField label="Zugfestigkeit" unit="MPa" value={form.tensileStrength} onChange={v => set('tensileStrength', v)} />
+            <NumField label="Bruchzähigkeit K_IC" unit="MPa√m" value={form.fractureToughness} onChange={v => set('fractureToughness', v)} />
           </div>
         </div>
 
