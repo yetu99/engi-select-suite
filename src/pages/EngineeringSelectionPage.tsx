@@ -9,6 +9,7 @@ import {
   defaultDimensioning,
   getMaterialIndex,
   applyConstraints,
+  computeNominalStress,
 } from '@/components/engineering/types';
 import {
   StepProblemDefinition,
