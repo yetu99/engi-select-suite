@@ -32,6 +32,7 @@ const App = () => (
               <Route path="/vergleich" element={<ComparisonPage />} />
               <Route path="/favoriten" element={<FavoritesPage />} />
               <Route path="/empfehlung" element={<RecommendationPage />} />
+              <Route path="/engineering" element={<EngineeringSelectionPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>

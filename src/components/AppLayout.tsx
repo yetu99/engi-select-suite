@@ -7,6 +7,7 @@ const navItems = [
   { to: '/favoriten', label: 'Favoriten', icon: Star },
   { to: '/vergleich', label: 'Vergleich', icon: GitCompareArrows },
   { to: '/empfehlung', label: 'Empfehlung', icon: Lightbulb },
+  { to: '/engineering', label: 'Engineering', icon: FlaskConical },
   { to: '/hinzufuegen', label: 'Hinzufügen', icon: PlusCircle },
 ];
 
