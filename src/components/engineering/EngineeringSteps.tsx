@@ -514,6 +514,8 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
                     className="font-mono"
                   />
                 </div>
+                {/* Geometry helper for I */}
+                <GeometryHelperI onApply={(I, y) => onChange({ ...dimensioning, momentOfInertia: I, distanceY: y })} />
               </>
             )}
 
@@ -547,6 +549,8 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
                     className="font-mono"
                   />
                 </div>
+                {/* Geometry helper for J */}
+                <GeometryHelperJ onApply={(J, r) => onChange({ ...dimensioning, polarMomentJ: J, radiusR: r })} />
               </>
             )}
           </div>
