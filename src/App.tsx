@@ -11,6 +11,7 @@ import MaterialFormPage from "./pages/MaterialFormPage.tsx";
 import ComparisonPage from "./pages/ComparisonPage.tsx";
 import FavoritesPage from "./pages/FavoritesPage.tsx";
 import RecommendationPage from "./pages/RecommendationPage.tsx";
+import EngineeringSelectionPage from "./pages/EngineeringSelectionPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
