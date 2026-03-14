@@ -138,6 +138,7 @@ export interface AshbyChartConfig {
   yLabel: string;
   logX: boolean;
   logY: boolean;
+  guidelineSlope: number | null; // null = no guideline for this chart
 }
 
 export const ashbyCharts: AshbyChartConfig[] = [
