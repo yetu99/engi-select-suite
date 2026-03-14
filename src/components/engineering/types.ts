@@ -190,14 +190,52 @@ export const OBJECTIVE_LABELS: Record<DesignObjective, string> = {
   'maximize-fracture-resistance': 'Bruchzähigkeit maximieren',
 };
 
+export type DimensioningLoadCase = 'tension' | 'bending' | 'torsion';
+
 export interface DimensioningInput {
+  loadCase: DimensioningLoadCase;
+  safetyFactor: number;
+  // Tension
   force: number;
   area: number;
-  safetyFactor: number;
+  // Bending
+  bendingMoment: number;      // N·mm
+  distanceY: number;          // mm  (distance from neutral axis)
+  momentOfInertia: number;    // mm⁴
+  // Torsion
+  torque: number;             // N·mm
+  radiusR: number;            // mm
+  polarMomentJ: number;       // mm⁴
 }
 
 export const defaultDimensioning: DimensioningInput = {
+  loadCase: 'tension',
+  safetyFactor: 2.0,
   force: 10000,
   area: 100,
-  safetyFactor: 2.0,
+  bendingMoment: 500000,
+  distanceY: 25,
+  momentOfInertia: 32552,
+  torque: 300000,
+  radiusR: 20,
+  polarMomentJ: 251327,
+};
+
+export function computeNominalStress(d: DimensioningInput): number {
+  switch (d.loadCase) {
+    case 'tension':
+      return d.area > 0 ? d.force / d.area : 0;
+    case 'bending':
+      return d.momentOfInertia > 0 ? (d.bendingMoment * d.distanceY) / d.momentOfInertia : 0;
+    case 'torsion':
+      return d.polarMomentJ > 0 ? (d.torque * d.radiusR) / d.polarMomentJ : 0;
+    default:
+      return 0;
+  }
+}
+
+export const DIMENSIONING_LOAD_LABELS: Record<DimensioningLoadCase, string> = {
+  tension: 'Zug — σ = F / A',
+  bending: 'Biegung — σ = M·y / I',
+  torsion: 'Torsion — τ = T·r / J',
 };
