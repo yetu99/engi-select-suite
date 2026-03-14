@@ -19,7 +19,7 @@ const emptyForm: FormData = {
   name: '', category: 'Metall', subcategory: '', shortDescription: '',
   density: 0, youngsModulus: 0, yieldStrength: 0, tensileStrength: 0,
   maxServiceTemp: 0, thermalConductivity: 0, corrosionResistance: 'Mittel',
-  manufacturingMethods: [], relativeCost: 5, recyclable: false,
+  manufacturingMethods: [], relativeCost: 5, recyclable: false, fractureToughness: 0,
   typicalApplications: '', advantages: '', limitations: '', selectionNotes: '', source: '',
 };
 
