@@ -209,11 +209,6 @@ export default function AshbyChart({
       <div
         ref={containerRef}
         className="select-none rounded-lg border border-border bg-card"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{ cursor: isDragging ? 'ns-resize' : guidelineSlope != null ? 'crosshair' : 'default' }}
       >
         <ResponsiveContainer width="100%" height={480}>
           <ComposedChart margin={CHART_MARGIN}>
