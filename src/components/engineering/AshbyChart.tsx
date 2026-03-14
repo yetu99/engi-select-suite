@@ -244,15 +244,17 @@ export default function AshbyChart({
               type="number"
               scale={logX ? 'log' : 'linear'}
               domain={xDomain}
+              ticks={logX ? logTicks(xDomain) : undefined}
               tickFormatter={formatTick}
               label={{
                 value: logX ? `${xLabel} [log]` : xLabel,
                 position: 'bottom',
                 offset: 30,
-                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
+                style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
               }}
               tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
               allowDuplicatedCategory={false}
+              tickCount={logX ? undefined : 8}
             />
             <YAxis
               dataKey="y"
