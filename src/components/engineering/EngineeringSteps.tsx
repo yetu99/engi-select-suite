@@ -643,6 +643,7 @@ interface Step6Props {
   shortlistIds: Set<string>;
   nominalStress: number;
   safetyFactor: number;
+  isTorsion: boolean;
 }
 
 export function StepResultShortlist({ materials, index, shortlistIds, nominalStress, safetyFactor }: Step6Props) {
