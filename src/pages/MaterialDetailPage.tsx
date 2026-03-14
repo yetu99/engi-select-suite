@@ -3,17 +3,20 @@ import { useMaterials } from '@/context/MaterialContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Star, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getMaterialById, toggleFavorite, updateLectureNotes, deleteMaterial } = useMaterials();
   const m = getMaterialById(id!);
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    if (m) setNotes(m.lectureNotes);
+  }, [m]);
 
   if (!m) return <div className="p-8 text-center text-muted-foreground">Werkstoff nicht gefunden.</div>;
-
-  const [notes, setNotes] = useState(m.lectureNotes);
 
   const saveNotes = () => updateLectureNotes(m.id, notes);
   const handleDelete = () => { deleteMaterial(m.id); navigate('/'); };
