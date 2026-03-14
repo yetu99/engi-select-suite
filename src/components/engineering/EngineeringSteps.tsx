@@ -646,21 +646,25 @@ interface Step6Props {
   isTorsion: boolean;
 }
 
-export function StepResultShortlist({ materials, index, shortlistIds, nominalStress, safetyFactor }: Step6Props) {
+export function StepResultShortlist({ materials, index, shortlistIds, nominalStress, safetyFactor, isTorsion }: Step6Props) {
   const results = useMemo(() => {
     const subset = shortlistIds.size > 0
       ? materials.filter((m) => shortlistIds.has(m.id))
       : [...materials].sort((a, b) => index.compute(b) - index.compute(a)).slice(0, 5);
 
     return subset
-      .map((m) => ({
-        material: m,
-        indexValue: index.compute(m),
-        allowable: m.yieldStrength / safetyFactor,
-        passes: nominalStress <= m.yieldStrength / safetyFactor,
-      }))
+      .map((m) => {
+        const strength = isTorsion ? m.yieldStrength / Math.sqrt(3) : m.yieldStrength;
+        const allowable = strength / safetyFactor;
+        return {
+          material: m,
+          indexValue: index.compute(m),
+          allowable,
+          passes: nominalStress <= allowable,
+        };
+      })
       .sort((a, b) => b.indexValue - a.indexValue);
-  }, [materials, index, shortlistIds, nominalStress, safetyFactor]);
+  }, [materials, index, shortlistIds, nominalStress, safetyFactor, isTorsion]);
 
   return (
     <div className="space-y-6">
