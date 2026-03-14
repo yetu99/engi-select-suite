@@ -35,6 +35,7 @@ interface AshbyChartProps {
   guidelineIntercept: number;
   onInterceptChange: (v: number) => void;
   highlightIds?: Set<string>;
+  shortlistIds?: Set<string>;
   onMaterialClick?: (id: string) => void;
 }
 
