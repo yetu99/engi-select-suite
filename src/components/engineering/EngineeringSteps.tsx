@@ -20,12 +20,15 @@ import {
   EngineeringProblem,
   MaterialIndexDef,
   DimensioningInput,
+  DimensioningLoadCase,
   LoadType,
   DesignObjective,
   LOAD_TYPE_LABELS,
   OBJECTIVE_LABELS,
   AshbyChartConfig,
   ashbyCharts,
+  computeNominalStress,
+  DIMENSIONING_LOAD_LABELS,
 } from './types';
 import AshbyChart from './AshbyChart';
 import { Link } from 'react-router-dom';
