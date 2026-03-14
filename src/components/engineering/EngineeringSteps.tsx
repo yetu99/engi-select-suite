@@ -268,6 +268,7 @@ interface Step3Props {
   guidelineIntercept: number;
   onInterceptChange: (v: number) => void;
   highlightIds?: Set<string>;
+  shortlistIds?: Set<string>;
   onMaterialClick?: (id: string) => void;
 }
 
@@ -279,6 +280,7 @@ export function StepAshbyCharts({
   guidelineIntercept,
   onInterceptChange,
   highlightIds,
+  shortlistIds,
   onMaterialClick,
 }: Step3Props) {
   const chart = ashbyCharts.find((c) => c.id === selectedChart) || ashbyCharts[0];
@@ -302,6 +304,12 @@ export function StepAshbyCharts({
         </TabsList>
       </Tabs>
 
+      {shortlistIds && shortlistIds.size > 0 && (
+        <p className="text-xs font-mono text-muted-foreground">
+          ⭐ {shortlistIds.size} Material(ien) in Shortlist — gelb markiert. Klicke auf Punkte zum Hinzufügen/Entfernen.
+        </p>
+      )}
+
       <AshbyChart
         materials={materials}
         xKey={chart.xKey}
@@ -314,6 +322,7 @@ export function StepAshbyCharts({
         guidelineIntercept={guidelineIntercept}
         onInterceptChange={onInterceptChange}
         highlightIds={highlightIds}
+        shortlistIds={shortlistIds}
         onMaterialClick={onMaterialClick}
       />
 
