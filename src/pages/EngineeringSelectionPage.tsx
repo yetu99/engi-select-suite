@@ -153,6 +153,7 @@ export default function EngineeringSelectionPage() {
             shortlistIds={shortlistIds}
             nominalStress={nominalStress}
             safetyFactor={dimensioning.safetyFactor}
+            isTorsion={dimensioning.loadCase === 'torsion'}
           />
         )}
       </div>
