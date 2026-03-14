@@ -47,7 +47,8 @@ export default function MaterialForm() {
     yieldStrength: existing.yieldStrength, tensileStrength: existing.tensileStrength, maxServiceTemp: existing.maxServiceTemp,
     thermalConductivity: existing.thermalConductivity, corrosionResistance: existing.corrosionResistance,
     manufacturingMethods: existing.manufacturingMethods, relativeCost: existing.relativeCost, recyclable: existing.recyclable,
-    typicalApplications: existing.typicalApplications, advantages: existing.advantages, limitations: existing.limitations,
+    fractureToughness: existing.fractureToughness, typicalApplications: existing.typicalApplications,
+    advantages: existing.advantages, limitations: existing.limitations,
     selectionNotes: existing.selectionNotes, source: existing.source,
   } : emptyForm);
 
