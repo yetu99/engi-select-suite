@@ -245,7 +245,12 @@ export default function AshbyChart({
               }}
               tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              trigger="hover"
+              isAnimationActive={false}
+              allowEscapeViewBox={{ x: true, y: true }}
+            />
             <Legend
               verticalAlign="top"
               height={30}
@@ -266,14 +271,15 @@ export default function AshbyChart({
                 >
                   {catData.map((d) => {
                     const isHighlighted = highlightIds?.has(d.id);
+                    const isShortlisted = shortlistIds?.has(d.id);
                     return (
                       <Cell
                         key={d.id}
-                        fill={CATEGORY_FILLS[cat]}
-                        fillOpacity={isHighlighted ? 1 : 0.7}
-                        stroke={isHighlighted ? 'hsl(var(--foreground))' : 'none'}
-                        strokeWidth={isHighlighted ? 2 : 0}
-                        r={isHighlighted ? 8 : 5}
+                        fill={isShortlisted ? '#facc15' : CATEGORY_FILLS[cat]}
+                        fillOpacity={isHighlighted || isShortlisted ? 1 : 0.7}
+                        stroke={isShortlisted ? '#a16207' : isHighlighted ? 'hsl(var(--foreground))' : 'none'}
+                        strokeWidth={isShortlisted ? 2.5 : isHighlighted ? 2 : 0}
+                        r={isShortlisted ? 9 : isHighlighted ? 8 : 5}
                       />
                     );
                   })}
