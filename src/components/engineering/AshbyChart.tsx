@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
 import {
   ComposedChart,
   Scatter,
@@ -35,6 +35,7 @@ interface AshbyChartProps {
   guidelineIntercept: number;
   onInterceptChange: (v: number) => void;
   highlightIds?: Set<string>;
+  shortlistIds?: Set<string>;
   onMaterialClick?: (id: string) => void;
 }
 
@@ -98,10 +99,10 @@ export default function AshbyChart({
   guidelineIntercept,
   onInterceptChange,
   highlightIds,
+  shortlistIds,
   onMaterialClick,
 }: AshbyChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   const allData = useMemo<DataPoint[]>(() => {
     return materials
@@ -156,32 +157,7 @@ export default function AshbyChart({
     return [min - pad, max + pad];
   }, [allData, guidelineSlope, logX, logY]);
 
-  // Drag handlers
-  const handleMouseDown = useCallback(() => {
-    if (guidelineSlope != null && logX && logY) setIsDragging(true);
-  }, [guidelineSlope, logX, logY]);
-
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging || !containerRef.current || guidelineSlope == null) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const chartW = rect.width - CHART_MARGIN.left - CHART_MARGIN.right;
-      const chartH = rect.height - CHART_MARGIN.top - CHART_MARGIN.bottom;
-      const mx = e.clientX - rect.left - CHART_MARGIN.left;
-      const my = e.clientY - rect.top - CHART_MARGIN.top;
-
-      const xFrac = Math.max(0.01, Math.min(0.99, mx / chartW));
-      const yFrac = Math.max(0.01, Math.min(0.99, 1 - my / chartH));
-
-      const logX_ = Math.log10(xDomain[0]) + xFrac * (Math.log10(xDomain[1]) - Math.log10(xDomain[0]));
-      const logY_ = Math.log10(yDomain[0]) + yFrac * (Math.log10(yDomain[1]) - Math.log10(yDomain[0]));
-
-      onInterceptChange(logY_ - guidelineSlope * logX_);
-    },
-    [isDragging, guidelineSlope, xDomain, yDomain, onInterceptChange]
-  );
+  // No drag handlers - use slider only for guideline control
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
@@ -233,11 +209,6 @@ export default function AshbyChart({
       <div
         ref={containerRef}
         className="select-none rounded-lg border border-border bg-card"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{ cursor: isDragging ? 'ns-resize' : guidelineSlope != null ? 'crosshair' : 'default' }}
       >
         <ResponsiveContainer width="100%" height={480}>
           <ComposedChart margin={CHART_MARGIN}>
@@ -274,7 +245,12 @@ export default function AshbyChart({
               }}
               tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              trigger="hover"
+              isAnimationActive={false}
+              allowEscapeViewBox={{ x: true, y: true }}
+            />
             <Legend
               verticalAlign="top"
               height={30}
@@ -295,14 +271,15 @@ export default function AshbyChart({
                 >
                   {catData.map((d) => {
                     const isHighlighted = highlightIds?.has(d.id);
+                    const isShortlisted = shortlistIds?.has(d.id);
                     return (
                       <Cell
                         key={d.id}
-                        fill={CATEGORY_FILLS[cat]}
-                        fillOpacity={isHighlighted ? 1 : 0.7}
-                        stroke={isHighlighted ? 'hsl(var(--foreground))' : 'none'}
-                        strokeWidth={isHighlighted ? 2 : 0}
-                        r={isHighlighted ? 8 : 5}
+                        fill={isShortlisted ? '#facc15' : CATEGORY_FILLS[cat]}
+                        fillOpacity={isHighlighted || isShortlisted ? 1 : 0.7}
+                        stroke={isShortlisted ? '#a16207' : isHighlighted ? 'hsl(var(--foreground))' : 'none'}
+                        strokeWidth={isShortlisted ? 2.5 : isHighlighted ? 2 : 0}
+                        r={isShortlisted ? 9 : isHighlighted ? 8 : 5}
                       />
                     );
                   })}

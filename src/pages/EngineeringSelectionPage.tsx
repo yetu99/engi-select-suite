@@ -127,6 +127,8 @@ export default function EngineeringSelectionPage() {
             guidelineIntercept={guidelineIntercept}
             onInterceptChange={setGuidelineIntercept}
             highlightIds={passingGuidelineIds}
+            shortlistIds={shortlistIds}
+            onMaterialClick={toggleShortlist}
           />
         )}
         {step === 3 && (
