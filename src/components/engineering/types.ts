@@ -138,15 +138,16 @@ export interface AshbyChartConfig {
   yLabel: string;
   logX: boolean;
   logY: boolean;
+  guidelineSlope: number | null; // null = no guideline for this chart
 }
 
 export const ashbyCharts: AshbyChartConfig[] = [
-  { id: 'e-vs-rho', title: 'E vs. ρ', xKey: 'density', yKey: 'youngsModulus', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'E-Modul E [GPa]', logX: true, logY: true },
-  { id: 'sigma-vs-rho', title: 'σ_y vs. ρ', xKey: 'density', yKey: 'yieldStrength', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'Streckgrenze σ_y [MPa]', logX: true, logY: true },
-  { id: 'kic-vs-sigma', title: 'K_IC vs. σ_y', xKey: 'yieldStrength', yKey: 'youngsModulus', xLabel: 'Streckgrenze σ_y [MPa]', yLabel: 'E-Modul E [GPa] (≈ K_IC-Proxy)', logX: true, logY: true },
-  { id: 'sigma-vs-temp', title: 'σ_y vs. T', xKey: 'maxServiceTemp', yKey: 'yieldStrength', xLabel: 'Max. Einsatztemperatur T [°C]', yLabel: 'Streckgrenze σ_y [MPa]', logX: false, logY: true },
-  { id: 'tensile-vs-yield', title: 'R_m vs. σ_y', xKey: 'yieldStrength', yKey: 'tensileStrength', xLabel: 'Streckgrenze σ_y [MPa]', yLabel: 'Zugfestigkeit R_m [MPa]', logX: true, logY: true },
-  { id: 'cost-vs-density', title: 'Kosten vs. ρ', xKey: 'density', yKey: 'relativeCost', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'Relative Kosten C_rel [–]', logX: true, logY: false },
+  { id: 'e-vs-rho', title: 'E-Modul vs. Dichte', xKey: 'density', yKey: 'youngsModulus', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'E-Modul E [GPa]', logX: true, logY: true, guidelineSlope: null },
+  { id: 'sigma-vs-rho', title: 'Streckgrenze vs. Dichte', xKey: 'density', yKey: 'yieldStrength', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'Streckgrenze σ_y [MPa]', logX: true, logY: true, guidelineSlope: null },
+  { id: 'kic-vs-sigma', title: 'Bruchzähigkeit vs. Streckgrenze', xKey: 'yieldStrength', yKey: 'youngsModulus', xLabel: 'Streckgrenze σ_y [MPa]', yLabel: 'E-Modul E [GPa] (≈ K_IC-Proxy)', logX: true, logY: true, guidelineSlope: 1 },
+  { id: 'sigma-vs-temp', title: 'Streckgrenze vs. Temperatur', xKey: 'maxServiceTemp', yKey: 'yieldStrength', xLabel: 'Max. Einsatztemperatur T [°C]', yLabel: 'Streckgrenze σ_y [MPa]', logX: false, logY: true, guidelineSlope: null },
+  { id: 'tensile-vs-yield', title: 'Zugfestigkeit vs. Streckgrenze', xKey: 'yieldStrength', yKey: 'tensileStrength', xLabel: 'Streckgrenze σ_y [MPa]', yLabel: 'Zugfestigkeit R_m [MPa]', logX: true, logY: true, guidelineSlope: 1 },
+  { id: 'cost-vs-density', title: 'Kosten vs. Dichte', xKey: 'density', yKey: 'relativeCost', xLabel: 'Dichte ρ [kg/m³]', yLabel: 'Relative Kosten C_rel [–]', logX: true, logY: false, guidelineSlope: null },
 ];
 
 export const CATEGORY_COLORS: Record<string, string> = {

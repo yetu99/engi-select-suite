@@ -185,25 +185,44 @@ export default function AshbyChart({
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.[0]?.payload) return null;
     const d = payload[0].payload as DataPoint;
+    const mat = materials.find((m) => m.id === d.id);
     return (
-      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono">
-        <div className="font-bold text-foreground text-sm">{d.name}</div>
-        <div className="text-muted-foreground mb-1">{d.category}</div>
-        <div>
-          {xLabel.split('[')[0].trim()}: <span className="text-foreground">{d.x.toLocaleString('de-DE')}</span>
-        </div>
-        <div>
-          {yLabel.split('[')[0].trim()}: <span className="text-foreground">{d.y.toLocaleString('de-DE')}</span>
-        </div>
+      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono min-w-[180px]">
+        <div className="font-bold text-foreground text-sm mb-1">{d.name}</div>
+        <div className="text-muted-foreground mb-2">{d.category}</div>
+        {mat && (
+          <div className="space-y-0.5 text-muted-foreground">
+            <div>ρ: <span className="text-foreground">{mat.density.toLocaleString('de-DE')} kg/m³</span></div>
+            <div>E: <span className="text-foreground">{mat.youngsModulus} GPa</span></div>
+            <div>σ_y: <span className="text-foreground">{mat.yieldStrength} MPa</span></div>
+            <div>R_m: <span className="text-foreground">{mat.tensileStrength} MPa</span></div>
+            <div>T_max: <span className="text-foreground">{mat.maxServiceTemp} °C</span></div>
+            <div>Kosten: <span className="text-foreground">{mat.relativeCost}/10</span></div>
+          </div>
+        )}
       </div>
     );
   };
 
   const formatTick = (v: number) => {
+    if (v === 0) return '0';
+    if (Math.abs(v) >= 1e6) return `${(v / 1e6).toFixed(0)}M`;
     if (Math.abs(v) >= 10000) return `${(v / 1000).toFixed(0)}k`;
     if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
-    if (v < 0.01 && v > 0) return v.toExponential(0);
+    if (v < 0.01 && v > 0) return v.toExponential(1);
+    if (v < 1 && v > 0) return v.toPrecision(2);
     return String(Math.round(v * 100) / 100);
+  };
+
+  // Generate clean log ticks
+  const logTicks = (domain: [number, number]) => {
+    const minExp = Math.floor(Math.log10(domain[0]));
+    const maxExp = Math.ceil(Math.log10(domain[1]));
+    const ticks: number[] = [];
+    for (let e = minExp; e <= maxExp; e++) {
+      ticks.push(Math.pow(10, e));
+    }
+    return ticks;
   };
 
   return (
@@ -225,15 +244,17 @@ export default function AshbyChart({
               type="number"
               scale={logX ? 'log' : 'linear'}
               domain={xDomain}
+              ticks={logX ? logTicks(xDomain) : undefined}
               tickFormatter={formatTick}
               label={{
                 value: logX ? `${xLabel} [log]` : xLabel,
                 position: 'bottom',
                 offset: 30,
-                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
+                style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontFamily: "'JetBrains Mono', monospace" },
               }}
               tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
               allowDuplicatedCategory={false}
+              tickCount={logX ? undefined : 8}
             />
             <YAxis
               dataKey="y"
@@ -304,8 +325,8 @@ export default function AshbyChart({
             step={0.01}
             className="flex-1"
           />
-          <span className="text-xs font-mono text-muted-foreground w-16 text-right">
-            M ≥ {Math.pow(10, guidelineIntercept).toFixed(1)}
+          <span className="text-xs font-mono text-muted-foreground w-32 text-right">
+            M ≥ {Math.pow(10, guidelineIntercept).toExponential(2)}
           </span>
         </div>
       )}
