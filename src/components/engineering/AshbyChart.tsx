@@ -136,6 +136,17 @@ export default function AshbyChart({
 }: AshbyChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const searchMatchIds = useMemo(() => {
+    if (!searchTerm.trim()) return new Set<string>();
+    const lower = searchTerm.toLowerCase();
+    return new Set(
+      materials
+        .filter((m) => m.name.toLowerCase().includes(lower))
+        .map((m) => m.id)
+    );
+  }, [materials, searchTerm]);
 
   const allData = useMemo<DataPoint[]>(() => {
     return materials
