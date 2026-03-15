@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Database, Compass, ArrowRight, FlaskConical } from 'lucide-react';
+import { useMaterials } from '@/context/MaterialContext';
 
 export default function HomePage() {
   return (
