@@ -52,7 +52,7 @@ export default function MaterialDetailPage() {
             <Star className={`w-4 h-4 ${m.isFavorite ? 'fill-warning text-warning' : ''}`} />
           </Button>
           <Button variant="ghost" size="sm" asChild className="rounded-lg">
-            <Link to={`/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
+            <Link to={`/datenbank/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
           </Button>
           <Button variant="ghost" size="sm" className="text-destructive rounded-lg" onClick={handleDelete}>
             <Trash2 className="w-4 h-4" />
