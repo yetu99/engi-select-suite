@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useMaterials } from '@/context/MaterialContext';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
+import { exportEngineeringPdf } from '@/components/engineering/PdfExport';
 import {
   EngineeringProblem,
   DimensioningInput,
