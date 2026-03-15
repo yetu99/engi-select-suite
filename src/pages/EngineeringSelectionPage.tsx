@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useMaterials } from '@/context/MaterialContext';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
+import { exportEngineeringPdf } from '@/components/engineering/PdfExport';
 import {
   EngineeringProblem,
   DimensioningInput,
@@ -183,20 +184,38 @@ export default function EngineeringSelectionPage() {
             Weiter <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              setStep(0);
-              setProblem(defaultProblem);
-              setShortlistIds(new Set());
-              setDimensioning(defaultDimensioning);
-              setGuidelineIntercept(-1.5);
-            }}
-            className="font-mono"
-          >
-            Neue Auswahl starten
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() =>
+                exportEngineeringPdf({
+                  problem,
+                  index: materialIndex,
+                  dimensioning,
+                  materials: constrainedMaterials,
+                  shortlistIds,
+                })
+              }
+              className="font-mono"
+            >
+              <FileDown className="w-4 h-4 mr-1" /> PDF Export
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setStep(0);
+                setProblem(defaultProblem);
+                setShortlistIds(new Set());
+                setDimensioning(defaultDimensioning);
+                setGuidelineIntercept(-1.5);
+              }}
+              className="font-mono"
+            >
+              Neue Auswahl starten
+            </Button>
+          </div>
         )}
       </div>
     </div>
