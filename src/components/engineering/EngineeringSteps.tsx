@@ -21,6 +21,7 @@ import {
   MaterialIndexDef,
   DimensioningInput,
   DimensioningLoadCase,
+  BendingSubType,
   LoadType,
   DesignObjective,
   LOAD_TYPE_LABELS,
@@ -28,7 +29,9 @@ import {
   AshbyChartConfig,
   ashbyCharts,
   computeNominalStress,
+  computeBendingMoment,
   DIMENSIONING_LOAD_LABELS,
+  BENDING_SUBTYPE_LABELS,
 } from './types';
 import AshbyChart from './AshbyChart';
 import { Link } from 'react-router-dom';
