@@ -21,6 +21,7 @@ import {
   MaterialIndexDef,
   DimensioningInput,
   DimensioningLoadCase,
+  BendingSubType,
   LoadType,
   DesignObjective,
   LOAD_TYPE_LABELS,
@@ -28,7 +29,9 @@ import {
   AshbyChartConfig,
   ashbyCharts,
   computeNominalStress,
+  computeBendingMoment,
   DIMENSIONING_LOAD_LABELS,
+  BENDING_SUBTYPE_LABELS,
 } from './types';
 import AshbyChart from './AshbyChart';
 import { Link } from 'react-router-dom';
@@ -529,6 +532,134 @@ function GeometryHelperJ({ onApply }: { onApply: (J: number, r: number) => void 
   );
 }
 
+/* ───────── Load Case SVG Diagrams ───────── */
+
+function LoadDiagramTension() {
+  return (
+    <svg viewBox="0 0 200 80" className="w-full max-w-[200px] h-auto">
+      <rect x="60" y="20" width="80" height="40" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" rx="2" />
+      <line x1="20" y1="40" x2="60" y2="40" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowR)" />
+      <line x1="180" y1="40" x2="140" y2="40" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowL)" />
+      <text x="30" y="35" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      <text x="155" y="35" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      <defs>
+        <marker id="arrowR" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="hsl(var(--foreground))" /></marker>
+        <marker id="arrowL" markerWidth="6" markerHeight="4" refX="0" refY="2" orient="auto"><path d="M6,0 L0,2 L6,4" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
+function LoadDiagramCantilever() {
+  return (
+    <svg viewBox="0 0 220 90" className="w-full max-w-[220px] h-auto">
+      {/* Wall */}
+      <line x1="30" y1="15" x2="30" y2="75" stroke="hsl(var(--foreground))" strokeWidth="2" />
+      <line x1="25" y1="20" x2="30" y2="25" stroke="hsl(var(--muted-foreground))" strokeWidth="1" />
+      <line x1="25" y1="30" x2="30" y2="35" stroke="hsl(var(--muted-foreground))" strokeWidth="1" />
+      <line x1="25" y1="40" x2="30" y2="45" stroke="hsl(var(--muted-foreground))" strokeWidth="1" />
+      <line x1="25" y1="50" x2="30" y2="55" stroke="hsl(var(--muted-foreground))" strokeWidth="1" />
+      <line x1="25" y1="60" x2="30" y2="65" stroke="hsl(var(--muted-foreground))" strokeWidth="1" />
+      {/* Beam */}
+      <rect x="30" y="40" width="150" height="6" fill="hsl(var(--primary))" rx="1" />
+      {/* Force arrow */}
+      <line x1="180" y1="15" x2="180" y2="40" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowDown)" />
+      <text x="185" y="30" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      {/* Length */}
+      <line x1="30" y1="60" x2="180" y2="60" stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" strokeDasharray="2 2" />
+      <text x="95" y="75" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="monospace" textAnchor="middle">L</text>
+      <text x="95" y="85" fontSize="7" fill="hsl(var(--primary))" fontFamily="monospace" textAnchor="middle">M = F·L</text>
+      <defs>
+        <marker id="arrowDown" markerWidth="4" markerHeight="6" refX="2" refY="6" orient="auto"><path d="M0,0 L2,6 L4,0" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
+function LoadDiagram3Point() {
+  return (
+    <svg viewBox="0 0 220 100" className="w-full max-w-[220px] h-auto">
+      {/* Supports */}
+      <polygon points="30,60 25,72 35,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      <polygon points="190,60 185,72 195,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      {/* Beam */}
+      <rect x="30" y="54" width="160" height="6" fill="hsl(var(--primary))" rx="1" />
+      {/* Force */}
+      <line x1="110" y1="20" x2="110" y2="54" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowDown3)" />
+      <text x="115" y="35" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      {/* Length */}
+      <text x="110" y="82" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="monospace" textAnchor="middle">L</text>
+      <text x="110" y="95" fontSize="7" fill="hsl(var(--primary))" fontFamily="monospace" textAnchor="middle">M = F·L/4</text>
+      <defs>
+        <marker id="arrowDown3" markerWidth="4" markerHeight="6" refX="2" refY="6" orient="auto"><path d="M0,0 L2,6 L4,0" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
+function LoadDiagram4Point() {
+  return (
+    <svg viewBox="0 0 220 100" className="w-full max-w-[220px] h-auto">
+      {/* Supports */}
+      <polygon points="30,60 25,72 35,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      <polygon points="190,60 185,72 195,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      {/* Beam */}
+      <rect x="30" y="54" width="160" height="6" fill="hsl(var(--primary))" rx="1" />
+      {/* Forces */}
+      <line x1="80" y1="20" x2="80" y2="54" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowDown4)" />
+      <line x1="140" y1="20" x2="140" y2="54" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowDown4)" />
+      <text x="85" y="35" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      <text x="145" y="35" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">F</text>
+      {/* a */}
+      <line x1="30" y1="80" x2="80" y2="80" stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" strokeDasharray="2 2" />
+      <text x="55" y="90" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="monospace" textAnchor="middle">a</text>
+      <text x="110" y="95" fontSize="7" fill="hsl(var(--primary))" fontFamily="monospace" textAnchor="middle">M = F·a</text>
+      <defs>
+        <marker id="arrowDown4" markerWidth="4" markerHeight="6" refX="2" refY="6" orient="auto"><path d="M0,0 L2,6 L4,0" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
+function LoadDiagramDistributed() {
+  return (
+    <svg viewBox="0 0 220 100" className="w-full max-w-[220px] h-auto">
+      {/* Supports */}
+      <polygon points="30,60 25,72 35,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      <polygon points="190,60 185,72 195,72" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" />
+      {/* Beam */}
+      <rect x="30" y="54" width="160" height="6" fill="hsl(var(--primary))" rx="1" />
+      {/* Distributed load arrows */}
+      {[40, 55, 70, 85, 100, 115, 130, 145, 160, 175].map((x) => (
+        <line key={x} x1={x} y1="25" x2={x} y2="52" stroke="hsl(var(--foreground))" strokeWidth="0.8" markerEnd="url(#arrowDownD)" />
+      ))}
+      <line x1="38" y1="25" x2="177" y2="25" stroke="hsl(var(--foreground))" strokeWidth="1" />
+      <text x="110" y="18" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace" textAnchor="middle">q [N/mm]</text>
+      <text x="110" y="82" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="monospace" textAnchor="middle">L</text>
+      <text x="110" y="95" fontSize="7" fill="hsl(var(--primary))" fontFamily="monospace" textAnchor="middle">M = q·L²/8</text>
+      <defs>
+        <marker id="arrowDownD" markerWidth="3" markerHeight="5" refX="1.5" refY="5" orient="auto"><path d="M0,0 L1.5,5 L3,0" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
+function LoadDiagramTorsion() {
+  return (
+    <svg viewBox="0 0 200 80" className="w-full max-w-[200px] h-auto">
+      <ellipse cx="60" cy="40" rx="15" ry="25" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+      <rect x="60" y="28" width="100" height="24" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" rx="2" />
+      <ellipse cx="160" cy="40" rx="15" ry="25" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+      {/* Torque arrow */}
+      <path d="M170,20 A20,20 0 0,1 170,60" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1.5" markerEnd="url(#arrowCurve)" />
+      <text x="180" y="42" fontSize="9" fill="hsl(var(--muted-foreground))" fontFamily="monospace">T</text>
+      <defs>
+        <marker id="arrowCurve" markerWidth="6" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="hsl(var(--foreground))" /></marker>
+      </defs>
+    </svg>
+  );
+}
+
 /* ───────── Step 5: Dimensioning ───────── */
 
 interface Step5Props {
@@ -548,7 +679,6 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
       ? materials.filter((m) => shortlistIds.has(m.id))
       : [...materials].sort((a, b) => index.compute(b) - index.compute(a)).slice(0, 10);
     return subset.map((m) => {
-      // For torsion use shear yield ≈ σ_y / √3 (von Mises)
       const strength = isTorsion ? m.yieldStrength / Math.sqrt(3) : m.yieldStrength;
       const allowable = strength / dimensioning.safetyFactor;
       return { material: m, allowable, passes: nominalStress <= allowable };
@@ -556,6 +686,7 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
   }, [materials, shortlistIds, dimensioning, nominalStress, index, isTorsion]);
 
   const stressSymbol = isTorsion ? 'τ' : 'σ';
+  const computedM = dimensioning.loadCase === 'bending' ? computeBendingMoment(dimensioning) : 0;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -591,6 +722,16 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
             ))}
           </div>
 
+          {/* Load case diagram */}
+          <div className="flex justify-center py-2 bg-muted/30 rounded-lg border border-border">
+            {dimensioning.loadCase === 'tension' && <LoadDiagramTension />}
+            {dimensioning.loadCase === 'bending' && dimensioning.bendingSubType === 'cantilever' && <LoadDiagramCantilever />}
+            {dimensioning.loadCase === 'bending' && dimensioning.bendingSubType === '3point' && <LoadDiagram3Point />}
+            {dimensioning.loadCase === 'bending' && dimensioning.bendingSubType === '4point' && <LoadDiagram4Point />}
+            {dimensioning.loadCase === 'bending' && dimensioning.bendingSubType === 'distributed' && <LoadDiagramDistributed />}
+            {dimensioning.loadCase === 'torsion' && <LoadDiagramTorsion />}
+          </div>
+
           <div className="border-t border-border pt-4 space-y-3">
             {/* Tension inputs */}
             {dimensioning.loadCase === 'tension' && (
@@ -619,15 +760,80 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
             {/* Bending inputs */}
             {dimensioning.loadCase === 'bending' && (
               <>
+                {/* Bending sub-type */}
                 <div>
-                  <Label className="text-xs font-mono">Biegemoment M [N·mm]</Label>
-                  <Input
-                    type="number"
-                    value={dimensioning.bendingMoment}
-                    onChange={(e) => onChange({ ...dimensioning, bendingMoment: Number(e.target.value) })}
-                    className="font-mono"
-                  />
+                  <Label className="text-xs font-mono mb-2 block">Biegefall</Label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(Object.keys(BENDING_SUBTYPE_LABELS) as BendingSubType[]).map((bt) => (
+                      <button
+                        key={bt}
+                        onClick={() => onChange({ ...dimensioning, bendingSubType: bt })}
+                        className={`text-[10px] font-mono px-2 py-1.5 rounded border transition-colors text-left ${
+                          dimensioning.bendingSubType === bt
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border text-muted-foreground hover:border-primary/40'
+                        }`}
+                      >
+                        {BENDING_SUBTYPE_LABELS[bt]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Sub-type specific inputs */}
+                {dimensioning.bendingSubType !== 'distributed' && (
+                  <div>
+                    <Label className="text-xs font-mono">Kraft F [N]</Label>
+                    <Input
+                      type="number"
+                      value={dimensioning.bendingForce}
+                      onChange={(e) => onChange({ ...dimensioning, bendingForce: Number(e.target.value) })}
+                      className="font-mono"
+                    />
+                  </div>
+                )}
+                {dimensioning.bendingSubType === 'distributed' && (
+                  <div>
+                    <Label className="text-xs font-mono">Streckenlast q [N/mm]</Label>
+                    <Input
+                      type="number"
+                      value={dimensioning.lineLoad}
+                      onChange={(e) => onChange({ ...dimensioning, lineLoad: Number(e.target.value) })}
+                      className="font-mono"
+                    />
+                  </div>
+                )}
+                {dimensioning.bendingSubType !== '4point' && (
+                  <div>
+                    <Label className="text-xs font-mono">Balkenlänge L [mm]</Label>
+                    <Input
+                      type="number"
+                      value={dimensioning.bendingLength}
+                      onChange={(e) => onChange({ ...dimensioning, bendingLength: Number(e.target.value) })}
+                      className="font-mono"
+                    />
+                  </div>
+                )}
+                {dimensioning.bendingSubType === '4point' && (
+                  <>
+                    <div>
+                      <Label className="text-xs font-mono">Abstand a [mm] (Auflager → Last)</Label>
+                      <Input
+                        type="number"
+                        value={dimensioning.fourPointA}
+                        onChange={(e) => onChange({ ...dimensioning, fourPointA: Number(e.target.value) })}
+                        className="font-mono"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Computed moment */}
+                <div className="bg-accent/30 rounded-lg p-2 border border-border">
+                  <div className="text-[10px] font-mono text-muted-foreground">Berechnetes M_max:</div>
+                  <div className="text-sm font-mono font-bold text-primary">{computedM.toFixed(0)} N·mm</div>
+                </div>
+
                 <div>
                   <Label className="text-xs font-mono">Randabstand y [mm]</Label>
                   <Input
@@ -646,7 +852,6 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
                     className="font-mono"
                   />
                 </div>
-                {/* Geometry helper for I */}
                 <GeometryHelperI onApply={(I, y) => onChange({ ...dimensioning, momentOfInertia: I, distanceY: y })} />
               </>
             )}
@@ -681,13 +886,12 @@ export function StepDimensioning({ dimensioning, onChange, materials, index, sho
                     className="font-mono"
                   />
                 </div>
-                {/* Geometry helper for J */}
                 <GeometryHelperJ onApply={(J, r) => onChange({ ...dimensioning, polarMomentJ: J, radiusR: r })} />
               </>
             )}
           </div>
 
-          {/* Safety factor (always visible) */}
+          {/* Safety factor */}
           <div>
             <Label className="text-xs font-mono">Sicherheitsfaktor S</Label>
             <Input

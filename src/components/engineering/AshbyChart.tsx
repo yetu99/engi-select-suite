@@ -15,6 +15,8 @@ import {
 import { Material, MaterialCategory } from '@/types/material';
 import { CATEGORY_FILLS } from './types';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Search, X } from 'lucide-react';
 
 interface DataPoint {
   x: number;
@@ -134,6 +136,17 @@ export default function AshbyChart({
 }: AshbyChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const searchMatchIds = useMemo(() => {
+    if (!searchTerm.trim()) return new Set<string>();
+    const lower = searchTerm.toLowerCase();
+    return new Set(
+      materials
+        .filter((m) => m.name.toLowerCase().includes(lower))
+        .map((m) => m.id)
+    );
+  }, [materials, searchTerm]);
 
   const allData = useMemo<DataPoint[]>(() => {
     return materials
@@ -222,13 +235,14 @@ export default function AshbyChart({
     const isShortlisted = shortlistIds?.has(d.id);
     const isHighlighted = highlightIds?.has(d.id);
     const isHovered = hoveredId === d.id;
-    const showLabel = isShortlisted || isHovered;
+    const isSearchMatch = searchMatchIds.has(d.id);
+    const showLabel = isShortlisted || isHovered || isSearchMatch;
 
-    const r = isShortlisted ? 8 : isHighlighted ? 7 : 5;
-    const fill = isShortlisted ? '#facc15' : CATEGORY_FILLS[d.category] || '#888';
-    const opacity = isHighlighted || isShortlisted ? 1 : 0.7;
-    const stroke = isShortlisted ? '#a16207' : isHighlighted ? 'hsl(215, 28%, 17%)' : 'none';
-    const sw = isShortlisted ? 2.5 : isHighlighted ? 1.5 : 0;
+    const r = isSearchMatch ? 10 : isShortlisted ? 8 : isHighlighted ? 7 : 5;
+    const fill = isSearchMatch ? '#ef4444' : isShortlisted ? '#facc15' : CATEGORY_FILLS[d.category] || '#888';
+    const opacity = isHighlighted || isShortlisted || isSearchMatch ? 1 : 0.7;
+    const stroke = isSearchMatch ? '#991b1b' : isShortlisted ? '#a16207' : isHighlighted ? 'hsl(215, 28%, 17%)' : 'none';
+    const sw = isSearchMatch ? 3 : isShortlisted ? 2.5 : isHighlighted ? 1.5 : 0;
 
     return (
       <g key={d.id}>
@@ -265,6 +279,29 @@ export default function AshbyChart({
 
   return (
     <div className="space-y-3">
+      {/* Search bar */}
+      <div className="relative max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Material suchen…"
+          className="pl-8 pr-8 h-8 text-xs font-mono"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {searchTerm && searchMatchIds.size > 0 && (
+          <span className="absolute -right-24 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground">
+            {searchMatchIds.size} Treffer
+          </span>
+        )}
+      </div>
       <div
         ref={containerRef}
         className="select-none rounded-xl border border-border/60 bg-card overflow-hidden"

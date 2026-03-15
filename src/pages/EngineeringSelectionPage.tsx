@@ -174,14 +174,30 @@ export default function EngineeringSelectionPage() {
         <span className="text-xs font-mono text-muted-foreground">
           Schritt {step + 1} / {STEPS.length}
         </span>
-        <Button
-          size="sm"
-          onClick={() => setStep((s) => s + 1)}
-          disabled={!canNext}
-          className="font-mono"
-        >
-          Weiter <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
+        {step < STEPS.length - 1 ? (
+          <Button
+            size="sm"
+            onClick={() => setStep((s) => s + 1)}
+            className="font-mono"
+          >
+            Weiter <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setStep(0);
+              setProblem(defaultProblem);
+              setShortlistIds(new Set());
+              setDimensioning(defaultDimensioning);
+              setGuidelineIntercept(-1.5);
+            }}
+            className="font-mono"
+          >
+            Neue Auswahl starten
+          </Button>
+        )}
       </div>
     </div>
   );
