@@ -15,6 +15,8 @@ import {
 import { Material, MaterialCategory } from '@/types/material';
 import { CATEGORY_FILLS } from './types';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Search, X } from 'lucide-react';
 
 interface DataPoint {
   x: number;
