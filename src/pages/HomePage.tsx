@@ -34,7 +34,7 @@ export default function HomePage() {
             <div className="min-w-0">
               <h2 className="text-base font-bold tracking-tight text-foreground mb-1">Materialdatenbank</h2>
               <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                88 Werkstoffe durchsuchen, filtern, vergleichen und als Favoriten speichern.
+                {materials.length} Werkstoffe durchsuchen, filtern, vergleichen und als Favoriten speichern.
               </p>
               <div className="flex items-center gap-1.5 text-primary text-xs font-semibold mt-2">
                 Öffnen <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
