@@ -279,6 +279,29 @@ export default function AshbyChart({
 
   return (
     <div className="space-y-3">
+      {/* Search bar */}
+      <div className="relative max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Material suchen…"
+          className="pl-8 pr-8 h-8 text-xs font-mono"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {searchTerm && searchMatchIds.size > 0 && (
+          <span className="absolute -right-24 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground">
+            {searchMatchIds.size} Treffer
+          </span>
+        )}
+      </div>
       <div
         ref={containerRef}
         className="select-none rounded-xl border border-border/60 bg-card overflow-hidden"
