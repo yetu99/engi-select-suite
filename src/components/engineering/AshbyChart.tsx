@@ -235,13 +235,14 @@ export default function AshbyChart({
     const isShortlisted = shortlistIds?.has(d.id);
     const isHighlighted = highlightIds?.has(d.id);
     const isHovered = hoveredId === d.id;
-    const showLabel = isShortlisted || isHovered;
+    const isSearchMatch = searchMatchIds.has(d.id);
+    const showLabel = isShortlisted || isHovered || isSearchMatch;
 
-    const r = isShortlisted ? 8 : isHighlighted ? 7 : 5;
-    const fill = isShortlisted ? '#facc15' : CATEGORY_FILLS[d.category] || '#888';
-    const opacity = isHighlighted || isShortlisted ? 1 : 0.7;
-    const stroke = isShortlisted ? '#a16207' : isHighlighted ? 'hsl(215, 28%, 17%)' : 'none';
-    const sw = isShortlisted ? 2.5 : isHighlighted ? 1.5 : 0;
+    const r = isSearchMatch ? 10 : isShortlisted ? 8 : isHighlighted ? 7 : 5;
+    const fill = isSearchMatch ? '#ef4444' : isShortlisted ? '#facc15' : CATEGORY_FILLS[d.category] || '#888';
+    const opacity = isHighlighted || isShortlisted || isSearchMatch ? 1 : 0.7;
+    const stroke = isSearchMatch ? '#991b1b' : isShortlisted ? '#a16207' : isHighlighted ? 'hsl(215, 28%, 17%)' : 'none';
+    const sw = isSearchMatch ? 3 : isShortlisted ? 2.5 : isHighlighted ? 1.5 : 0;
 
     return (
       <g key={d.id}>
