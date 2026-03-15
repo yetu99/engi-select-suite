@@ -19,7 +19,7 @@ export default function MaterialDetailPage() {
   if (!m) return <div className="p-12 text-center text-muted-foreground">Werkstoff nicht gefunden.</div>;
 
   const saveNotes = () => updateLectureNotes(m.id, notes);
-  const handleDelete = () => { deleteMaterial(m.id); navigate('/'); };
+  const handleDelete = () => { deleteMaterial(m.id); navigate('/datenbank'); };
 
   const props: { label: string; value: string | number; unit?: string }[] = [
     { label: 'Dichte', value: m.density.toLocaleString('de-DE'), unit: 'kg/m³' },
