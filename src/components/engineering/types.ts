@@ -194,8 +194,11 @@ export const OBJECTIVE_LABELS: Record<DesignObjective, string> = {
 
 export type DimensioningLoadCase = 'tension' | 'bending' | 'torsion';
 
+export type BendingSubType = 'cantilever' | '3point' | '4point' | 'distributed';
+
 export interface DimensioningInput {
   loadCase: DimensioningLoadCase;
+  bendingSubType: BendingSubType;
   safetyFactor: number;
   // Tension
   force: number;
@@ -204,6 +207,11 @@ export interface DimensioningInput {
   bendingMoment: number;      // N·mm
   distanceY: number;          // mm  (distance from neutral axis)
   momentOfInertia: number;    // mm⁴
+  // Bending helper inputs
+  bendingForce: number;       // N
+  bendingLength: number;      // mm
+  lineLoad: number;           // N/mm
+  fourPointA: number;         // mm (distance from support to load)
   // Torsion
   torque: number;             // N·mm
   radiusR: number;            // mm
@@ -212,23 +220,45 @@ export interface DimensioningInput {
 
 export const defaultDimensioning: DimensioningInput = {
   loadCase: 'tension',
+  bendingSubType: 'cantilever',
   safetyFactor: 2.0,
   force: 10000,
   area: 100,
   bendingMoment: 500000,
   distanceY: 25,
   momentOfInertia: 32552,
+  bendingForce: 1000,
+  bendingLength: 500,
+  lineLoad: 10,
+  fourPointA: 150,
   torque: 300000,
   radiusR: 20,
   polarMomentJ: 251327,
 };
 
+export function computeBendingMoment(d: DimensioningInput): number {
+  switch (d.bendingSubType) {
+    case 'cantilever':
+      return d.bendingForce * d.bendingLength; // M_max = F·L
+    case '3point':
+      return (d.bendingForce * d.bendingLength) / 4; // M_max = F·L/4
+    case '4point':
+      return d.bendingForce * d.fourPointA; // M_max = F·a
+    case 'distributed':
+      return (d.lineLoad * Math.pow(d.bendingLength, 2)) / 8; // M_max = q·L²/8
+    default:
+      return d.bendingMoment;
+  }
+}
+
 export function computeNominalStress(d: DimensioningInput): number {
   switch (d.loadCase) {
     case 'tension':
       return d.area > 0 ? d.force / d.area : 0;
-    case 'bending':
-      return d.momentOfInertia > 0 ? (d.bendingMoment * d.distanceY) / d.momentOfInertia : 0;
+    case 'bending': {
+      const M = computeBendingMoment(d);
+      return d.momentOfInertia > 0 ? (M * d.distanceY) / d.momentOfInertia : 0;
+    }
     case 'torsion':
       return d.polarMomentJ > 0 ? (d.torque * d.radiusR) / d.polarMomentJ : 0;
     default:
@@ -240,4 +270,11 @@ export const DIMENSIONING_LOAD_LABELS: Record<DimensioningLoadCase, string> = {
   tension: 'Zug — σ = F / A',
   bending: 'Biegung — σ = M·y / I',
   torsion: 'Torsion — τ = T·r / J',
+};
+
+export const BENDING_SUBTYPE_LABELS: Record<BendingSubType, string> = {
+  cantilever: 'Kragbalken (F·L)',
+  '3point': '3-Punkt-Biegung (F·L/4)',
+  '4point': '4-Punkt-Biegung (F·a)',
+  distributed: 'Gleichstreckenlast (q·L²/8)',
 };
