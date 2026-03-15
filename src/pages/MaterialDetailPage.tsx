@@ -19,7 +19,7 @@ export default function MaterialDetailPage() {
   if (!m) return <div className="p-12 text-center text-muted-foreground">Werkstoff nicht gefunden.</div>;
 
   const saveNotes = () => updateLectureNotes(m.id, notes);
-  const handleDelete = () => { deleteMaterial(m.id); navigate('/'); };
+  const handleDelete = () => { deleteMaterial(m.id); navigate('/datenbank'); };
 
   const props: { label: string; value: string | number; unit?: string }[] = [
     { label: 'Dichte', value: m.density.toLocaleString('de-DE'), unit: 'kg/m³' },
@@ -52,7 +52,7 @@ export default function MaterialDetailPage() {
             <Star className={`w-4 h-4 ${m.isFavorite ? 'fill-warning text-warning' : ''}`} />
           </Button>
           <Button variant="ghost" size="sm" asChild className="rounded-lg">
-            <Link to={`/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
+            <Link to={`/datenbank/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
           </Button>
           <Button variant="ghost" size="sm" className="text-destructive rounded-lg" onClick={handleDelete}>
             <Trash2 className="w-4 h-4" />

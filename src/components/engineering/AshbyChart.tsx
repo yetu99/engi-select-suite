@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import {
   ComposedChart,
   Scatter,
@@ -10,6 +10,7 @@ import {
   Legend,
   Customized,
   Cell,
+  LabelList,
 } from 'recharts';
 import { Material, MaterialCategory } from '@/types/material';
 import { CATEGORY_FILLS } from './types';
@@ -21,6 +22,13 @@ interface DataPoint {
   id: string;
   name: string;
   category: MaterialCategory;
+  density: number;
+  youngsModulus: number;
+  yieldStrength: number;
+  tensileStrength: number;
+  fractureToughness: number;
+  maxServiceTemp: number;
+  relativeCost: number;
 }
 
 interface AshbyChartProps {
@@ -87,6 +95,28 @@ function GuidelineRenderer({ xAxisMap, yAxisMap, slope, intercept }: any) {
   );
 }
 
+/* Custom tooltip that renders as a floating card near the mouse */
+function ChartTooltipContent({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const d = payload[0]?.payload as DataPoint;
+  if (!d) return null;
+  return (
+    <div className="bg-card/95 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-lg text-xs min-w-[200px] pointer-events-none z-[100]">
+      <div className="font-bold text-foreground text-sm mb-0.5">{d.name}</div>
+      <div className="text-muted-foreground text-[10px] mb-2 font-medium">{d.category}</div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-[11px] text-muted-foreground">
+        <div>ρ: <span className="text-foreground font-medium">{d.density.toLocaleString('de-DE')} kg/m³</span></div>
+        <div>E: <span className="text-foreground font-medium">{d.youngsModulus} GPa</span></div>
+        <div>σ_y: <span className="text-foreground font-medium">{d.yieldStrength} MPa</span></div>
+        <div>R_m: <span className="text-foreground font-medium">{d.tensileStrength} MPa</span></div>
+        <div>K_IC: <span className="text-foreground font-medium">{d.fractureToughness} MPa√m</span></div>
+        <div>T_max: <span className="text-foreground font-medium">{d.maxServiceTemp} °C</span></div>
+        <div className="col-span-2">Kosten: <span className="text-foreground font-medium">{d.relativeCost}/10</span></div>
+      </div>
+    </div>
+  );
+}
+
 export default function AshbyChart({
   materials,
   xKey,
@@ -103,6 +133,7 @@ export default function AshbyChart({
   onMaterialClick,
 }: AshbyChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const allData = useMemo<DataPoint[]>(() => {
     return materials
@@ -112,6 +143,13 @@ export default function AshbyChart({
         id: m.id,
         name: m.name,
         category: m.category,
+        density: m.density,
+        youngsModulus: m.youngsModulus,
+        yieldStrength: m.yieldStrength,
+        tensileStrength: m.tensileStrength,
+        fractureToughness: m.fractureToughness,
+        maxServiceTemp: m.maxServiceTemp,
+        relativeCost: m.relativeCost,
       }))
       .filter((d) => (logX ? d.x > 0 : true) && (logY ? d.y > 0 : true));
   }, [materials, xKey, yKey, logX, logY]);
@@ -146,7 +184,6 @@ export default function AshbyChart({
     return [min - pad, max + pad];
   }, [allData, logY]);
 
-  // Guideline intercept range for slider
   const interceptRange = useMemo<[number, number]>(() => {
     if (guidelineSlope == null || !logX || !logY) return [0, 0];
     const values = allData.map((d) => Math.log10(d.y) - guidelineSlope * Math.log10(d.x));
@@ -156,32 +193,6 @@ export default function AshbyChart({
     const pad = (max - min) * 0.4;
     return [min - pad, max + pad];
   }, [allData, guidelineSlope, logX, logY]);
-
-  // No drag handlers - use slider only for guideline control
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.length) return null;
-    const d = payload[0]?.payload as DataPoint;
-    if (!d) return null;
-    const mat = materials.find((m) => m.id === d.id);
-    return (
-      <div className="bg-card border border-border rounded-md px-3 py-2 shadow-lg text-xs font-mono min-w-[180px] pointer-events-none z-[100]">
-        <div className="font-bold text-foreground text-sm mb-1">{d.name}</div>
-        <div className="text-muted-foreground mb-2">{d.category}</div>
-        {mat && (
-          <div className="space-y-0.5 text-muted-foreground">
-            <div>ρ: <span className="text-foreground">{mat.density.toLocaleString('de-DE')} kg/m³</span></div>
-            <div>E: <span className="text-foreground">{mat.youngsModulus} GPa</span></div>
-            <div>σ_y: <span className="text-foreground">{mat.yieldStrength} MPa</span></div>
-            <div>R_m: <span className="text-foreground">{mat.tensileStrength} MPa</span></div>
-            <div>K_IC: <span className="text-foreground">{mat.fractureToughness} MPa√m</span></div>
-            <div>T_max: <span className="text-foreground">{mat.maxServiceTemp} °C</span></div>
-            <div>Kosten: <span className="text-foreground">{mat.relativeCost}/10</span></div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const formatTick = (v: number) => {
     if (v === 0) return '0';
@@ -193,7 +204,6 @@ export default function AshbyChart({
     return String(Math.round(v * 100) / 100);
   };
 
-  // Generate clean log ticks
   const logTicks = (domain: [number, number]) => {
     const minExp = Math.floor(Math.log10(domain[0]));
     const maxExp = Math.ceil(Math.log10(domain[1]));
@@ -204,15 +214,64 @@ export default function AshbyChart({
     return ticks;
   };
 
+  // Custom shape that renders the dot AND a name label for shortlisted/hovered items
+  const renderDot = (props: any, cat: string) => {
+    const { cx, cy, payload } = props;
+    if (!cx || !cy || !payload) return null;
+    const d = payload as DataPoint;
+    const isShortlisted = shortlistIds?.has(d.id);
+    const isHighlighted = highlightIds?.has(d.id);
+    const isHovered = hoveredId === d.id;
+    const showLabel = isShortlisted || isHovered;
+
+    const r = isShortlisted ? 8 : isHighlighted ? 7 : 5;
+    const fill = isShortlisted ? '#facc15' : CATEGORY_FILLS[d.category] || '#888';
+    const opacity = isHighlighted || isShortlisted ? 1 : 0.7;
+    const stroke = isShortlisted ? '#a16207' : isHighlighted ? 'hsl(215, 28%, 17%)' : 'none';
+    const sw = isShortlisted ? 2.5 : isHighlighted ? 1.5 : 0;
+
+    return (
+      <g key={d.id}>
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill={fill}
+          fillOpacity={opacity}
+          stroke={stroke}
+          strokeWidth={sw}
+          style={{ cursor: 'pointer', transition: 'r 150ms ease' }}
+          onMouseEnter={() => setHoveredId(d.id)}
+          onMouseLeave={() => setHoveredId(null)}
+          onClick={() => onMaterialClick?.(d.id)}
+        />
+        {showLabel && (
+          <text
+            x={cx}
+            y={cy - r - 4}
+            textAnchor="middle"
+            fill="hsl(215, 28%, 17%)"
+            fontSize={9}
+            fontWeight={600}
+            fontFamily="'Inter', sans-serif"
+            style={{ pointerEvents: 'none' }}
+          >
+            {d.name}
+          </text>
+        )}
+      </g>
+    );
+  };
+
   return (
     <div className="space-y-3">
       <div
         ref={containerRef}
-        className="select-none rounded-lg border border-border bg-card"
+        className="select-none rounded-xl border border-border/60 bg-card overflow-hidden"
       >
         <ResponsiveContainer width="100%" height={480}>
           <ComposedChart margin={CHART_MARGIN}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.35} />
             <XAxis
               dataKey="x"
               type="number"
@@ -246,7 +305,7 @@ export default function AshbyChart({
               tick={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<ChartTooltipContent />}
               trigger="hover"
               isAnimationActive={false}
               allowEscapeViewBox={{ x: true, y: true }}
@@ -254,7 +313,7 @@ export default function AshbyChart({
             <Legend
               verticalAlign="top"
               height={30}
-              wrapperStyle={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
+              wrapperStyle={{ fontSize: 11, fontFamily: "'Inter', sans-serif" }}
             />
             {categories.map((cat) => {
               const catData = allData.filter((d) => d.category === cat);
@@ -264,26 +323,9 @@ export default function AshbyChart({
                   name={cat}
                   data={catData}
                   fill={CATEGORY_FILLS[cat] || '#888'}
-                  fillOpacity={0.8}
-                  onClick={(data: any) => onMaterialClick?.(data?.id)}
-                  cursor="pointer"
                   isAnimationActive={false}
-                >
-                  {catData.map((d) => {
-                    const isHighlighted = highlightIds?.has(d.id);
-                    const isShortlisted = shortlistIds?.has(d.id);
-                    return (
-                      <Cell
-                        key={d.id}
-                        fill={isShortlisted ? '#facc15' : CATEGORY_FILLS[cat]}
-                        fillOpacity={isHighlighted || isShortlisted ? 1 : 0.7}
-                        stroke={isShortlisted ? '#a16207' : isHighlighted ? 'hsl(var(--foreground))' : 'none'}
-                        strokeWidth={isShortlisted ? 2.5 : isHighlighted ? 2 : 0}
-                        r={isShortlisted ? 9 : isHighlighted ? 8 : 5}
-                      />
-                    );
-                  })}
-                </Scatter>
+                  shape={(props: any) => renderDot(props, cat)}
+                />
               );
             })}
             {guidelineSlope != null && logX && logY && (

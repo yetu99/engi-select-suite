@@ -5,14 +5,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MaterialProvider } from "@/context/MaterialContext";
 import AppLayout from "@/components/AppLayout";
-import Index from "./pages/Index.tsx";
-import MaterialDetailPage from "./pages/MaterialDetailPage.tsx";
-import MaterialFormPage from "./pages/MaterialFormPage.tsx";
-import ComparisonPage from "./pages/ComparisonPage.tsx";
-import FavoritesPage from "./pages/FavoritesPage.tsx";
-import RecommendationPage from "./pages/RecommendationPage.tsx";
-import EngineeringSelectionPage from "./pages/EngineeringSelectionPage.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import DatabaseLayout from "@/components/DatabaseLayout";
+import EngineeringLayout from "@/components/EngineeringLayout";
+import HomePage from "./pages/HomePage";
+import Index from "./pages/Index";
+import MaterialDetailPage from "./pages/MaterialDetailPage";
+import MaterialFormPage from "./pages/MaterialFormPage";
+import ComparisonPage from "./pages/ComparisonPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import RecommendationPage from "./pages/RecommendationPage";
+import EngineeringSelectionPage from "./pages/EngineeringSelectionPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -25,14 +28,26 @@ const App = () => (
         <MaterialProvider>
           <AppLayout>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<HomePage />} />
+              
+              {/* Database module */}
+              <Route path="/datenbank" element={<DatabaseLayout />}>
+                <Route index element={<Index />} />
+                <Route path="favoriten" element={<FavoritesPage />} />
+                <Route path="vergleich" element={<ComparisonPage />} />
+                <Route path="empfehlung" element={<RecommendationPage />} />
+                <Route path="hinzufuegen" element={<MaterialFormPage />} />
+                <Route path="bearbeiten/:id" element={<MaterialFormPage />} />
+              </Route>
+              
+              {/* Keep old detail route working */}
               <Route path="/werkstoff/:id" element={<MaterialDetailPage />} />
-              <Route path="/hinzufuegen" element={<MaterialFormPage />} />
-              <Route path="/bearbeiten/:id" element={<MaterialFormPage />} />
-              <Route path="/vergleich" element={<ComparisonPage />} />
-              <Route path="/favoriten" element={<FavoritesPage />} />
-              <Route path="/empfehlung" element={<RecommendationPage />} />
-              <Route path="/engineering" element={<EngineeringSelectionPage />} />
+              
+              {/* Engineering module */}
+              <Route path="/engineering" element={<EngineeringLayout />}>
+                <Route index element={<EngineeringSelectionPage />} />
+              </Route>
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
