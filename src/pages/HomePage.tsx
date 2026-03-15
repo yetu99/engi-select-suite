@@ -3,6 +3,7 @@ import { Database, Compass, ArrowRight, FlaskConical } from 'lucide-react';
 import { useMaterials } from '@/context/MaterialContext';
 
 export default function HomePage() {
+  const { materials } = useMaterials();
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-6">
       {/* Header */}
