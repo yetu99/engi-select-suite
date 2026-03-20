@@ -1,20 +1,31 @@
 
+import { useState } from 'react';
 import { useMaterials } from '@/context/MaterialContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, LayoutList, LayoutGrid } from 'lucide-react';
+import { Search, LayoutList, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import FilterSidebar from '@/components/FilterSidebar';
 import MaterialTable from '@/components/MaterialTable';
 import MaterialCards from '@/components/MaterialCards';
 
 export default function DashboardPage() {
   const { filters, updateFilter, viewMode, setViewMode, filteredMaterials, materials } = useMaterials();
+  const [showFilters, setShowFilters] = useState(false);
 
   return (
     <div className="flex">
-      <FilterSidebar />
+      {showFilters && <FilterSidebar />}
       <div className="flex-1 min-w-0">
         <div className="sticky top-14 z-20 bg-background/80 backdrop-blur-md p-4 flex items-center gap-3 border-b border-border/50">
+          <Button
+            variant={showFilters ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowFilters(v => !v)}
+            className="h-8 px-3 rounded-lg gap-1.5 text-[13px]"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filter
+          </Button>
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
