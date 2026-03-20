@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useMaterials } from '@/context/MaterialContext';
+import { useReadOnly } from '@/hooks/useReadOnly';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Star, Pencil, Trash2 } from 'lucide-react';
@@ -9,6 +10,7 @@ export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getMaterialById, toggleFavorite, updateLectureNotes, deleteMaterial } = useMaterials();
+  const readOnly = useReadOnly();
   const m = getMaterialById(id!);
   const [notes, setNotes] = useState('');
 
@@ -51,12 +53,16 @@ export default function MaterialDetailPage() {
           <Button variant="ghost" size="sm" onClick={() => toggleFavorite(m.id)} className="rounded-lg">
             <Star className={`w-4 h-4 ${m.isFavorite ? 'fill-warning text-warning' : ''}`} />
           </Button>
-          <Button variant="ghost" size="sm" asChild className="rounded-lg">
-            <Link to={`/datenbank/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
-          </Button>
-          <Button variant="ghost" size="sm" className="text-destructive rounded-lg" onClick={handleDelete}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {!readOnly && (
+            <>
+              <Button variant="ghost" size="sm" asChild className="rounded-lg">
+                <Link to={`/datenbank/bearbeiten/${m.id}`}><Pencil className="w-4 h-4" /></Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="text-destructive rounded-lg" onClick={handleDelete}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -112,8 +118,17 @@ export default function MaterialDetailPage() {
 
           <div className="bg-card shadow-card rounded-xl p-5 border border-border/50">
             <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Vorlesungsnotizen</h2>
-            <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={6} placeholder="Eigene Notizen zu diesem Werkstoff…" className="rounded-lg" />
-            <Button size="sm" className="mt-3 rounded-lg" onClick={saveNotes}>Notizen speichern</Button>
+            <Textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={6}
+              placeholder="Eigene Notizen zu diesem Werkstoff…"
+              className="rounded-lg"
+              readOnly={readOnly}
+            />
+            {!readOnly && (
+              <Button size="sm" className="mt-3 rounded-lg" onClick={saveNotes}>Notizen speichern</Button>
+            )}
           </div>
         </div>
       </div>
