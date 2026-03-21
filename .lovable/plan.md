@@ -1,46 +1,56 @@
 
 
-## Plan: Collapsible Filter, Default Card View & Read-Only Share Mode
+## Bewertung deiner Ideen
 
-### 1. Collapsible Filter Sidebar
-**File: `src/components/FilterSidebar.tsx`**
-- Wrap each filter section (Kategorie, Dichte, E-Modul, etc.) in a `Collapsible` component from the existing `@/components/ui/collapsible.tsx`
-- Each section gets a clickable header with a chevron icon that toggles open/closed
-- Use local `useState` to track which sections are open (default: all collapsed or first 2 open — keeping it clean)
-- Add a toggle button in the sidebar header to collapse/expand the entire sidebar panel
+Starke Auswahl! Hier meine Einschätzung zu jedem Modul:
 
-### 2. Default View Mode: Cards
-**File: `src/context/MaterialContext.tsx`**
-- Change line 72: `useState<'table' | 'card'>('table')` → `useState<'table' | 'card'>('card')`
+| Modul | Machbarkeit | Anmerkung |
+|-------|-------------|-----------|
+| **Problemlösung (VDI 2221/2222 + iPeM/SPALTEN)** | Hoch | Interaktive Checklisten, Schritt-für-Schritt-Workflows — passt perfekt |
+| **O-Ring-Auslegung** | Hoch | Berechnungslogik mit Eingabefeldern, Handbuch-Daten hinterlegbar |
+| **Schadenskunde + Bildanalyse** | Mittel-Hoch | Katalog mit Schadensbildern machbar; KI-Bildanalyse über Lovable AI (Gemini) möglich |
+| **Fertigungsmesstechnik / Tolerierung** | Hoch | Toleranzrechner nach ISO 286-1, Passungssysteme — sehr gut umsetzbar |
+| **Normen-Übersicht** | Hoch | Filterbares Verzeichnis mit Kategorien, Suchfunktion |
+| **Projektplanung / Gantt** | Mittel | Gantt-Darstellung machbar, Export als Template realistisch |
+| **Hydraulik-Auslegung** | Hoch | Berechnungsformulare für Druck, Durchfluss, Zylinder etc. |
+| **Template-Datenbank** | Hoch | Download-Bereich für Excel/PDF-Vorlagen |
 
-### 3. Read-Only Share Mode (No Auth Required)
-Since there's no authentication system yet, the simplest effective approach:
-- Add a URL query parameter `?mode=readonly` that toggles read-only mode
-- Create a small context/hook (`useReadOnly`) that checks for this param
-- **When read-only:**
-  - `DatabaseLayout.tsx`: Hide the "Hinzufügen" nav link
-  - `MaterialDetailPage.tsx`: Hide Edit, Delete buttons and the lecture notes save button
-  - `MaterialCards.tsx` / `MaterialTable.tsx`: Optionally hide edit shortcuts
-- **Share link:** The user shares the published URL with `?mode=readonly` appended
-- Normal access (without the param) retains full editing capability
+---
 
-### Technical Details
+## Plan: Startseite um neue Modul-Kacheln erweitern
 
-**New file: `src/hooks/useReadOnly.ts`**
-```typescript
-export function useReadOnly(): boolean {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('mode') === 'readonly';
-}
-```
+### Konzept
+Die Startseite wird von einem 2-Spalten-Grid auf ein responsives Multi-Kachel-Grid umgebaut. Die beiden bestehenden Module (Materialdatenbank, Auslegungsassistent) bleiben. Die neuen 8 Module werden als Kacheln hinzugefügt — zunächst mit einem "Kommt bald"-Status, damit du sie Schritt für Schritt mit Inhalt füllen kannst.
 
-**Files modified:**
-| File | Change |
-|------|--------|
-| `src/components/FilterSidebar.tsx` | Wrap filter groups in `Collapsible` components with toggle headers |
-| `src/context/MaterialContext.tsx` | Default viewMode → `'card'` |
-| `src/hooks/useReadOnly.ts` | New hook checking `?mode=readonly` |
-| `src/components/DatabaseLayout.tsx` | Hide "Hinzufügen" link when read-only |
-| `src/pages/MaterialDetailPage.tsx` | Hide Edit/Delete/Save buttons when read-only |
-| `src/pages/Index.tsx` | Pass read-only awareness (minor) |
+### Änderungen
+
+**Datei: `src/pages/HomePage.tsx`**
+- Grid-Layout ändern: `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4` für kompakte Kacheln
+- Titel und Beschreibung anpassen: "Engineering Toolkit" statt nur "MaterialSelect"
+- Kachel-Daten als Array definieren (Titel, Icon, Route, Beschreibung, Status `active`/`coming_soon`)
+- Aktive Module verlinken, "Kommt bald"-Module mit Badge und deaktiviertem Link
+- Layout scrollbar machen (kein `justify-center` mehr, da >2 Kacheln)
+- Jede Kachel bekommt einen eigenen Farbakzent (verschiedene Blau-/Grautöne)
+
+**Neue Module-Kacheln:**
+
+| Kachel | Icon | Route (vorbereitet) |
+|--------|------|---------------------|
+| Problemlösung (VDI/iPeM) | `Lightbulb` | `/methodik` |
+| O-Ring-Auslegung | `Circle` | `/oring` |
+| Schadenskunde | `Search` | `/schadenskunde` |
+| Tolerierung & Messtechnik | `Ruler` | `/tolerierung` |
+| Normen-Übersicht | `BookOpen` | `/normen` |
+| Projektplanung | `GanttChart` | `/projektplanung` |
+| Hydraulik-Auslegung | `Droplets` | `/hydraulik` |
+| Template-Datenbank | `FolderDown` | `/templates` |
+
+**Datei: `src/App.tsx`**
+- Placeholder-Routen für die neuen Module anlegen (zeigen zunächst eine "Kommt bald"-Seite)
+
+**Neue Datei: `src/pages/ComingSoonPage.tsx`**
+- Einfache Platzhalter-Seite mit Modulname und "In Entwicklung"-Hinweis
+
+### Ergebnis
+Die Startseite zeigt alle 10 Module als übersichtliches Kachel-Grid. Die beiden bestehenden sind voll funktional, die 8 neuen haben ein "Kommt bald"-Badge und eine Platzhalter-Seite. Du kannst dann Modul für Modul sagen, welches wir als nächstes mit Leben füllen.
 
