@@ -15,6 +15,7 @@ import ComparisonPage from "./pages/ComparisonPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import EngineeringSelectionPage from "./pages/EngineeringSelectionPage";
+import MethodikPage from "./pages/MethodikPage";
 import NotFound from "./pages/NotFound";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
