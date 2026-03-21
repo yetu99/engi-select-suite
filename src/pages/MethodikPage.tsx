@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import IPeMModel from '@/components/methodik/IPeMModel';
 import SpaltenMethod from '@/components/methodik/SpaltenMethod';
+import VdiProcess from '@/components/methodik/VdiProcess';
 
 export default function MethodikPage() {
   const navigate = useNavigate();
@@ -28,9 +29,10 @@ export default function MethodikPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="ipem" className="space-y-4">
-        <TabsList className="grid grid-cols-2 w-full max-w-md">
+        <TabsList className="grid grid-cols-3 w-full max-w-lg">
           <TabsTrigger value="ipem" className="text-xs">iPeM — Produktentwicklung</TabsTrigger>
           <TabsTrigger value="spalten" className="text-xs">SPALTEN — Problemlösung</TabsTrigger>
+          <TabsTrigger value="vdi" className="text-xs">VDI 2221/2222</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ipem">
@@ -39,6 +41,10 @@ export default function MethodikPage() {
 
         <TabsContent value="spalten">
           <SpaltenMethod />
+        </TabsContent>
+
+        <TabsContent value="vdi">
+          <VdiProcess />
         </TabsContent>
       </Tabs>
     </div>
