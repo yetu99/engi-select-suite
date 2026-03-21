@@ -16,6 +16,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import EngineeringSelectionPage from "./pages/EngineeringSelectionPage";
 import NotFound from "./pages/NotFound";
+import ComingSoonPage from "./pages/ComingSoonPage";
 
 const queryClient = new QueryClient();
 
