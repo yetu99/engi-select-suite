@@ -51,7 +51,7 @@ const App = () => (
               </Route>
               
               {/* Coming soon modules */}
-              <Route path="/methodik" element={<ComingSoonPage />} />
+              <Route path="/methodik" element={<MethodikPage />} />
               <Route path="/oring" element={<ComingSoonPage />} />
               <Route path="/schadenskunde" element={<ComingSoonPage />} />
               <Route path="/tolerierung" element={<ComingSoonPage />} />

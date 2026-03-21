@@ -42,8 +42,8 @@ const modules: Module[] = [
     description: 'VDI 2221/2222, iPeM und SPALTEN nach Prof. Albers.',
     icon: Lightbulb,
     route: '/methodik',
-    status: 'coming_soon',
-    cta: 'Bald verfügbar',
+    status: 'active',
+    cta: 'Starten',
     gradient: 'from-[hsl(210,70%,45%)] to-[hsl(210,70%,58%)]',
   },
   {
