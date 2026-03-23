@@ -271,10 +271,10 @@ export default function VdiProcess() {
           {/* PDF links */}
           <div className="flex flex-wrap gap-2 pt-1">
             {[
-              { label: 'VDI 2221 Bl. 1', href: 'https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/VDI_2221_Blatt_1.pdf' },
-              { label: 'VDI 2221 Bl. 2', href: 'https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/VDI_2221_Blatt_2.pdf' },
-              { label: 'VDI 2222 Bl. 1', href: 'https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/VDI_2222_Blatt_1.pdf' },
-              { label: 'VDI 2222 Bl. 2', href: 'https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/VDI_2222_Blatt_2.pdf' },
+              { label: 'VDI 2221 Bl. 1', href: '/pdf/vdi-2221-blatt-1' },
+              { label: 'VDI 2221 Bl. 2', href: '/pdf/vdi-2221-blatt-2' },
+              { label: 'VDI 2222 Bl. 1', href: '/pdf/vdi-2222-blatt-1' },
+              { label: 'VDI 2222 Bl. 2', href: '/pdf/vdi-2222-blatt-2' },
             ].map((pdf) => (
               <a key={pdf.label} href={pdf.href} target="_blank" rel="noopener noreferrer">
                 <Badge variant="outline" className="text-[10px] gap-1 cursor-pointer hover:bg-accent">
