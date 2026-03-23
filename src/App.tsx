@@ -16,6 +16,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import EngineeringSelectionPage from "./pages/EngineeringSelectionPage";
 import MethodikPage from "./pages/MethodikPage";
+import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
@@ -52,6 +53,7 @@ const App = () => (
               
               {/* Coming soon modules */}
               <Route path="/methodik" element={<MethodikPage />} />
+              <Route path="/pdf/:documentId" element={<PdfViewerPage />} />
               <Route path="/oring" element={<ComingSoonPage />} />
               <Route path="/schadenskunde" element={<ComingSoonPage />} />
               <Route path="/tolerierung" element={<ComingSoonPage />} />
