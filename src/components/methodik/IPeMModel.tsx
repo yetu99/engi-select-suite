@@ -198,11 +198,11 @@ export default function IPeMModel() {
           Modellierung von Produktentwicklungsprozessen. Klicke auf die Bereiche des Modells, um Details und Methoden zu erkunden.
         </p>
         <div className="flex flex-wrap gap-2">
-          <a href="/pdf/ipem-albers-2016"
+          <a href="https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/iPeM_Albers_2016.pdf" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
             <BookOpen className="w-3.5 h-3.5" /> Originalpaper (Albers et al., 2016)
           </a>
-          <a href="/pdf/pge-zusammenfassung"
+          <a href="https://rrlkamlzjvzhgyuiwpxl.supabase.co/storage/v1/object/public/papers/PGE_Zusammenfassung.pdf" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
             <FileText className="w-3.5 h-3.5" /> PGE-Zusammenfassung (PDF)
           </a>
