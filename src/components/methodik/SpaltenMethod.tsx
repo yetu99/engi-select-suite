@@ -134,7 +134,7 @@ export default function SpaltenMethod() {
           zur systematischen Problemlösung in der Produktentwicklung.
         </p>
         <div className="flex flex-wrap gap-2">
-          <a href="/papers/SPALTEN_Albers_2005.pdf" target="_blank" rel="noopener noreferrer"
+          <a href="https://raw.githubusercontent.com/yetu99/engi-select-suite/main/public/papers/SPALTEN_Albers_2005.pdf" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
             <BookOpen className="w-3.5 h-3.5" /> Originalpaper (Albers et al., ICED 2005)
           </a>
