@@ -69,7 +69,7 @@ export default function PdfViewerPage() {
         {/* Embedded PDF via iframe */}
         <div className="flex-1 rounded-2xl border border-border/60 overflow-hidden bg-muted/30" style={{ minHeight: '75vh' }}>
           <iframe
-            src={url}
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
             title={entry.title}
             className="w-full h-full border-0"
             style={{ minHeight: '75vh' }}
