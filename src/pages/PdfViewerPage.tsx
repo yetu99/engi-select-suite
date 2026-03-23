@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, ExternalLink, FileText } from 'lucide-react';
+import { FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -20,6 +21,14 @@ export default function PdfViewerPage() {
   const { documentId } = useParams();
   const entry = documentId ? documents[documentId] : undefined;
 
+  // Redirect to the actual PDF URL immediately
+  useEffect(() => {
+    if (entry) {
+      window.open(`${STORAGE_BASE}/${entry.file}`, '_blank');
+      navigate('/methodik', { replace: true });
+    }
+  }, [entry, navigate]);
+
   if (!entry) {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
@@ -39,43 +48,5 @@ export default function PdfViewerPage() {
     );
   }
 
-  const url = `${STORAGE_BASE}/${entry.file}`;
-
-  return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col px-4 py-6 sm:px-6">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 flex-1">
-        {/* Header */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card/80 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/methodik')} className="-ml-2 w-fit">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Zurück zur Methodik
-            </Button>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">{entry.title}</h1>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> In neuem Tab
-              </a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={url} download>
-                <Download className="mr-2 h-4 w-4" /> Herunterladen
-              </a>
-            </Button>
-          </div>
-        </div>
-
-        {/* Embedded PDF via iframe */}
-        <div className="flex-1 rounded-2xl border border-border/60 overflow-hidden bg-muted/30" style={{ minHeight: '75vh' }}>
-          <iframe
-            src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
-            title={entry.title}
-            className="w-full h-full border-0"
-            style={{ minHeight: '75vh' }}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 }
