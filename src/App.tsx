@@ -16,7 +16,6 @@ import FavoritesPage from "./pages/FavoritesPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import EngineeringSelectionPage from "./pages/EngineeringSelectionPage";
 import MethodikPage from "./pages/MethodikPage";
-import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
